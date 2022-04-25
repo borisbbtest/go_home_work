@@ -14,16 +14,16 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-func New(cfg *service_short_urlConfig) *service_short_url {
+func New(cfg *Service_short_urlConfig) *Service_short_url {
 
-	return &service_short_url{
-		channelPost: make(chan *string, cfg.QueueCapacity),
-		channelGet:  make(chan *string, cfg.QueueCapacity),
-		config:      *cfg,
+	return &Service_short_url{
+		ChannelPost: make(chan *string, cfg.QueueCapacity),
+		ChannelGet:  make(chan *string, cfg.QueueCapacity),
+		Config:      *cfg,
 	}
 }
 
-func ConfigFromFile(filename string) (cfg *service_short_urlConfig, err error) {
+func ConfigFromFile(filename string) (cfg *Service_short_urlConfig, err error) {
 	log.Infof("Loading configuration at '%s'", filename)
 	configFile, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -31,7 +31,7 @@ func ConfigFromFile(filename string) (cfg *service_short_urlConfig, err error) {
 	}
 
 	// Default values
-	config := service_short_urlConfig{
+	config := Service_short_urlConfig{
 		Port:          8080,
 		QueueCapacity: 500,
 		ServerHost:    "localhost",
@@ -46,35 +46,35 @@ func ConfigFromFile(filename string) (cfg *service_short_urlConfig, err error) {
 	return &config, nil
 }
 
-func (hook *service_short_url) Start() error {
+func (hook *Service_short_url) Start() error {
 
 	// Launch the process thread
 	go hook.processMain()
 
 	// Launch the listening thread
 	log.Println("Initializing HTTP server")
-	http.HandleFunc("/", hook.mainHandler)
+	http.HandleFunc("/", hook.MainHandler)
 	err := http.ListenAndServe(":"+strconv.Itoa(hook.config.Port), nil)
 	if err != nil {
 		return fmt.Errorf("can't start the listening thread: %s", err)
 	}
 
 	log.Info("Exiting")
-	close(hook.channelGet)
-	close(hook.channelPost)
+	close(hook.ChannelGet)
+	close(hook.ChannelPost)
 
 	return nil
 }
-func (hook *service_short_url) processMain() {
+func (hook *Service_short_url) ProcessMain() {
 	log.Info("Get URL to short")
 	for {
 		select {
-		case a := <-hook.channelPost:
+		case a := <-hook.ChannelPost:
 			if a == nil {
 				log.Info("Queue Closed")
 				return
 			}
-		case a := <-hook.channelPost:
+		case a := <-hook.ChannelPost:
 			if a == nil {
 				log.Info("Queue Closed")
 				return

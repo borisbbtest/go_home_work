@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	. "github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/sirupsen/logrus"
 )
 
-func (hook *service_short_url) mainHandler(w http.ResponseWriter, r *http.Request) {
+var log = logrus.WithField("context", "service_short_url")
+
+func (hook *Service_short_url) MainHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		hook.PostHandler(w, r)
@@ -18,7 +23,7 @@ func (hook *service_short_url) mainHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (hook *service_short_url) GetHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *Service_short_url) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -35,12 +40,12 @@ func (hook *service_short_url) GetHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	hook.channelGet <- &m
+	hook.ChannelGet <- &m
 	fmt.Printf(m)
 
 }
 
-func (hook *service_short_url) PostHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *Service_short_url) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -57,7 +62,7 @@ func (hook *service_short_url) PostHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	hook.channelPost <- &m
+	hook.ChannelPost <- &m
 	fmt.Printf(m)
 
 }
