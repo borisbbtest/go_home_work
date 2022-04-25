@@ -1,0 +1,6 @@
+#Server listen to port
+port: 8080
+#queue can contains while waiting for processing
+queueCapacity: 500
+# Hostname of your server
+ServerHost: localhost
