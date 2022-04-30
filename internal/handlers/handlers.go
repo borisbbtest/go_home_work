@@ -10,9 +10,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type WrapperHandler struct {
+	hook Service_short_url
+}
+
 var log = logrus.WithField("context", "service_short_url")
 
-func (hook *Service_short_url) MainHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *WrapperHandler) MainHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		hook.PostHandler(w, r)
@@ -23,7 +27,7 @@ func (hook *Service_short_url) MainHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (hook *Service_short_url) GetHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -40,12 +44,12 @@ func (hook *Service_short_url) GetHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	hook.ChannelGet <- &m
+	hook.hook.ChannelGet <- &m
 	fmt.Printf(m)
 
 }
 
-func (hook *Service_short_url) PostHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -62,7 +66,7 @@ func (hook *Service_short_url) PostHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	hook.ChannelPost <- &m
+	hook.hook.ChannelPost <- &m
 	fmt.Printf(m)
 
 }

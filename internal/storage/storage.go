@@ -11,3 +11,5 @@ type Service_short_urlConfig struct {
 	QueueCapacity int    `yaml:"queueCapacity"`
 	ServerHost    string `yaml:"ServerHost"`
 }
+type repositories interface {
+}

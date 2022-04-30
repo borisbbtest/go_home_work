@@ -5,6 +5,7 @@ import (
 	"os"
 
 	. "github.com/borisbbtest/go_home_work/internal/app"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,6 +23,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Info(tools.GenerateShortLink("test"))
 
 	err = New(cfg).Start()
 	if err != nil {
