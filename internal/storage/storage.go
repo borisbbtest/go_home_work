@@ -1,15 +1,20 @@
 package storage
 
-type Service_short_url struct {
-	ChannelPost chan *string
-	ChannelGet  chan *string
-	Config      Service_short_urlConfig
+type StorageURL struct {
+	Port int
+	Url  string
+	Path string
 }
 
-type Service_short_urlConfig struct {
-	Port          int    `yaml:"port"`
-	QueueCapacity int    `yaml:"queueCapacity"`
-	ServerHost    string `yaml:"ServerHost"`
+type repositoriesURLShort interface {
+	getURLforRedirect(urlshotr string)
 }
-type repositories interface {
+
+func (store *StorageURL) setURLforRedirect() (err error, dataStore StorageURL) {
+
+	return
+}
+
+func (store *StorageURL) getURLforRedirect(urlshort string) {
+
 }

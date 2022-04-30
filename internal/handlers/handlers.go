@@ -6,26 +6,15 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	. "github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/sirupsen/logrus"
 )
 
 type WrapperHandler struct {
-	hook Service_short_url
+	urlStore storage.StorageURL
 }
 
 var log = logrus.WithField("context", "service_short_url")
-
-func (hook *WrapperHandler) MainHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		hook.PostHandler(w, r)
-	case http.MethodGet:
-		hook.GetHandler(w, r)
-	default:
-		http.Error(w, "unsupported HTTP method only post send", 400)
-	}
-}
 
 func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -43,10 +32,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "request body is not valid json", 400)
 		return
 	}
-
-	hook.hook.ChannelGet <- &m
 	fmt.Printf(m)
-
 }
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +51,5 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "request body is not valid json", 400)
 		return
 	}
-
-	hook.hook.ChannelPost <- &m
 	fmt.Printf(m)
-
 }

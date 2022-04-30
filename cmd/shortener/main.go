@@ -5,7 +5,7 @@ import (
 	"os"
 
 	. "github.com/borisbbtest/go_home_work/internal/app"
-	"github.com/borisbbtest/go_home_work/internal/tools"
+	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,12 +19,10 @@ func main() {
 	configFileName := flag.String("config", "./config.yml", "path to the configuration file")
 	flag.Parse()
 
-	cfg, err := ConfigFromFile(*configFileName)
+	cfg, err := config.GetConfig(*configFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Info(tools.GenerateShortLink("test"))
 
 	err = New(cfg).Start()
 	if err != nil {
