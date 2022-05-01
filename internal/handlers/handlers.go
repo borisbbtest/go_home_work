@@ -1,38 +1,46 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
+	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type WrapperHandler struct {
-	urlStore storage.StorageURL
+	UrlStore   storage.StoreDB
+	ServerConf *config.Service_short_urlConfig
 }
 
 var log = logrus.WithField("context", "service_short_url")
 
 func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
-	bytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	// fmt.Println(string(bytes))
+	id := chi.URLParam(r, "id")
 
-	defer r.Body.Close()
-	var m string
-	if err := json.Unmarshal(bytes, &m); err != nil {
-		log.Errorf("body error: %v", string(bytes))
-		log.Errorf("error decoding message: %v", err)
-		http.Error(w, "request body is not valid json", 400)
-		return
+	// for k, v := range hook.UrlStore.DBLocal {
+	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
+	// }
+
+	value, status := hook.UrlStore.DBLocal[id]
+	if status {
+		url := value.Url
+		w.Header().Set("Location", url)
+		w.WriteHeader(307)
+		log.Printf("Get handler")
+	} else {
+		log.Printf("key not found")
 	}
-	fmt.Printf(m)
+
+	fmt.Println(id)
+	defer r.Body.Close()
+
+	log.Printf("Get handler")
 }
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,15 +49,33 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// fmt.Println(string(bytes))
 
+	hashcode, _ := hook.UrlStore.PostURLforRedirect(string(bytes))
+	resp := fmt.Sprintf("http://%s:%d/%s", hook.ServerConf.ServerHost, hook.ServerConf.Port, hashcode)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(201)
+	fmt.Fprintln(w, resp)
+
+	log.Println("Post handler")
 	defer r.Body.Close()
-	var m string
-	if err := json.Unmarshal(bytes, &m); err != nil {
-		log.Errorf("body error: %v", string(bytes))
-		log.Errorf("error decoding message: %v", err)
-		http.Error(w, "request body is not valid json", 400)
-		return
+}
+
+func (hook *WrapperHandler) FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
 	}
-	fmt.Printf(m)
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+	log.Println(path)
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
 }
