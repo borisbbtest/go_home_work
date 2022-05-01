@@ -51,7 +51,7 @@ func (hook *service_short_url) Start() error {
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "web"))
-	hook.wrapp.FileServer(r, "/form", filesDir)
+	hook.wrapp.FileServer(r, "/", filesDir)
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", strconv.Itoa(hook.conf.Port)),
