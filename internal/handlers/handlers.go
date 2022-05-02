@@ -57,7 +57,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
-	fmt.Fprintln(w, resp)
+	fmt.Fprint(w, resp)
 
 	log.Println("Post handler")
 	defer r.Body.Close()
