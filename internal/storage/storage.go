@@ -11,7 +11,7 @@ import (
 
 type StorageURL struct {
 	Port string
-	Url  string
+	URL  string
 	Path string
 }
 
@@ -38,7 +38,7 @@ func (store *StoreDB) PostURLforRedirect(str string) (res string, err error) {
 	var dataStore StorageURL
 	dataStore.Path = url.Path
 	dataStore.Port = url.Port()
-	dataStore.Url = str
+	dataStore.URL = str
 	store.DBLocal[res] = dataStore
 	return
 }

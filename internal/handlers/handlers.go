@@ -13,8 +13,8 @@ import (
 )
 
 type WrapperHandler struct {
-	UrlStore   storage.StoreDB
-	ServerConf *config.Service_short_urlConfig
+	URLStore   storage.StoreDB
+	ServerConf *config.ServiceShortURLConfig
 }
 
 var log = logrus.WithField("context", "service_short_url")
@@ -27,9 +27,9 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
 	// }
 
-	value, status := hook.UrlStore.DBLocal[id]
+	value, status := hook.URLStore.DBLocal[id]
 	if status {
-		url := value.Url
+		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)
 		log.Printf("Get handler")
@@ -50,7 +50,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		log.Fatalln(err)
 	}
 
-	hashcode, _ := hook.UrlStore.PostURLforRedirect(string(bytes))
+	hashcode, _ := hook.URLStore.PostURLforRedirect(string(bytes))
 	resp := fmt.Sprintf("http://%s:%d/%s", hook.ServerConf.ServerHost, hook.ServerConf.Port, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -67,7 +67,7 @@ func (hook *WrapperHandler) FileServer(r chi.Router, path string, root http.File
 	}
 
 	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
 		path += "/"
 	}
 	path += "*"

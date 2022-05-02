@@ -10,15 +10,15 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-type Service_short_urlConfig struct {
+type ServiceShortURLConfig struct {
 	Port       int    `yaml:"port"`
 	ServerHost string `yaml:"ServerHost"`
 }
 type ServerConfig interface {
-	getConfig(filename string) (cfg *Service_short_urlConfig, err error)
+	getConfig(filename string) (cfg *ServiceShortURLConfig, err error)
 }
 
-func GetConfig(filename string) (cfg *Service_short_urlConfig, err error) {
+func GetConfig(filename string) (cfg *ServiceShortURLConfig, err error) {
 	log.Infof("Loading configuration at '%s'", filename)
 	configFile, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -26,7 +26,7 @@ func GetConfig(filename string) (cfg *Service_short_urlConfig, err error) {
 	}
 
 	// Default values
-	config := Service_short_urlConfig{
+	config := ServiceShortURLConfig{
 		Port:       8080,
 		ServerHost: "localhost",
 	}

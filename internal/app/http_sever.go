@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	. "github.com/borisbbtest/go_home_work/internal/config"
+	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/go-chi/chi/middleware"
@@ -18,16 +18,16 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-type service_short_url struct {
-	conf  Service_short_urlConfig
+type serviceShortURL struct {
+	conf  config.ServiceShortURLConfig
 	wrapp handlers.WrapperHandler
 }
 
-func New(cfg *Service_short_urlConfig) *service_short_url {
-	return &service_short_url{
+func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
+	return &serviceShortURL{
 		conf: *cfg,
 		wrapp: handlers.WrapperHandler{
-			UrlStore: storage.StoreDB{
+			URLStore: storage.StoreDB{
 				DBLocal: make(map[string]storage.StorageURL),
 			},
 			ServerConf: cfg,
@@ -35,7 +35,7 @@ func New(cfg *Service_short_urlConfig) *service_short_url {
 	}
 }
 
-func (hook *service_short_url) Start() error {
+func (hook *serviceShortURL) Start() error {
 
 	// Launch the listening thread
 	log.Println("Initializing HTTP server 1")
