@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	. "github.com/borisbbtest/go_home_work/internal/app"
+	"github.com/borisbbtest/go_home_work/internal/app"
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/sirupsen/logrus"
 )
@@ -24,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = New(cfg).Start()
+	err = app.New(cfg).Start()
 	if err != nil {
 		log.Fatal(err)
 	}
