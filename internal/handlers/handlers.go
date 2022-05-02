@@ -32,17 +32,18 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)
-		log.Printf("Get handler")
+		//log.Printf("Get handler")
 	} else {
-		w.WriteHeader(201)
-		fmt.Fprintln(w, "OK")
-		log.Printf("key not found")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprint(w, "OK")
+		//log.Printf("key not found")
 	}
 
 	fmt.Println(id)
 	defer r.Body.Close()
 
-	log.Printf("Get handler")
+	//log.Printf("Get handler")
 }
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {

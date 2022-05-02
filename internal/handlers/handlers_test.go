@@ -1,63 +1,148 @@
-package handlers
+package handlers_test
 
 import (
+	"bytes"
+	"io"
 	"net/http"
+	"net/http/httptest"
+	"regexp"
 	"testing"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
+	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 )
 
-func TestWrapperHandler_GetHandler(t *testing.T) {
-	type fields struct {
-		URLStore   storage.StoreDB
-		ServerConf *config.ServiceShortURLConfig
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+func TestGetShortLinkHandler(t *testing.T) {
+	type want struct {
+		code        int
+		response    string
+		contentType string
+		longURL     string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name string
+		want want
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Create URL Short test #1",
+			want: want{
+				code:        201,
+				response:    `OK`,
+				longURL:     "http://localhost:8080/.+",
+				contentType: "text/plain; charset=utf-8",
+			},
+		},
 	}
 	for _, tt := range tests {
+		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			hook := &WrapperHandler{
-				URLStore:   tt.fields.URLStore,
-				ServerConf: tt.fields.ServerConf,
+			request := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte("http://yandex.ru")))
+			request.Header.Set("Content-Type", "text/plain; charset=utf-8")
+			th := handlers.WrapperHandler{
+				URLStore: storage.StoreDB{
+					DBLocal: make(map[string]storage.StorageURL),
+				},
+				ServerConf: &config.ServiceShortURLConfig{
+					Port:       8080,
+					ServerHost: "localhost",
+				},
 			}
-			hook.GetHandler(tt.args.w, tt.args.r)
+			// создаём новый Recorder
+			w := httptest.NewRecorder()
+			// определяем хендлер
+			h := http.HandlerFunc(th.PostHandler)
+			// запускаем сервер
+			h.ServeHTTP(w, request)
+			res := w.Result()
+
+			// проверяем код ответа
+
+			if res.StatusCode != tt.want.code {
+				t.Errorf("Expected status code %d, got %d", tt.want.code, w.Code)
+			}
+
+			// получаем и проверяем тело запроса
+			defer res.Body.Close()
+			resBody, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(resBody) != tt.want.response {
+				chk, _ := regexp.MatchString(tt.want.longURL, w.Body.String())
+				if !chk {
+					t.Errorf("Not valid url ")
+				}
+			}
+
+			// заголовок ответа
+			if res.Header.Get("Content-Type") != tt.want.contentType {
+				t.Errorf("Expected Content-Type %s, got %s", tt.want.contentType, res.Header.Get("Content-Type"))
+			}
 		})
 	}
 }
 
-func TestWrapperHandler_PostHandler(t *testing.T) {
-	type fields struct {
-		URLStore   storage.StoreDB
-		ServerConf *config.ServiceShortURLConfig
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+func TestStatusHandler(t *testing.T) {
+	type want struct {
+		code        int
+		response    string
+		contentType string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name string
+		want want
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Connetion test #1",
+			want: want{
+				code:        200,
+				response:    `OK`,
+				contentType: "text/plain; charset=utf-8",
+			},
+		},
 	}
 	for _, tt := range tests {
+		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			hook := &WrapperHandler{
-				URLStore:   tt.fields.URLStore,
-				ServerConf: tt.fields.ServerConf,
+			request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+			th := handlers.WrapperHandler{
+				URLStore: storage.StoreDB{
+					DBLocal: make(map[string]storage.StorageURL),
+				},
+				ServerConf: &config.ServiceShortURLConfig{
+					Port:       8080,
+					ServerHost: "localhost",
+				},
 			}
-			hook.PostHandler(tt.args.w, tt.args.r)
+			// создаём новый Recorder
+			w := httptest.NewRecorder()
+			// определяем хендлер
+			h := http.HandlerFunc(th.GetHandler)
+			// запускаем сервер
+			h.ServeHTTP(w, request)
+			res := w.Result()
+
+			// проверяем код ответа
+			if res.StatusCode != tt.want.code {
+				t.Errorf("Expected status code %d, got %d", tt.want.code, w.Code)
+			}
+
+			// получаем и проверяем тело запроса
+			defer res.Body.Close()
+			resBody, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(resBody) != tt.want.response {
+				t.Errorf("Expected body %s, got %s", tt.want.response, w.Body.String())
+			}
+
+			// заголовок ответа
+			if res.Header.Get("Content-Type") != tt.want.contentType {
+				t.Errorf("Expected Content-Type %s, got %s", tt.want.contentType, res.Header.Get("Content-Type"))
+			}
 		})
 	}
 }
