@@ -21,7 +21,10 @@ func main() {
 
 	cfg, err := config.GetConfig(*configFileName)
 	if err != nil {
-		log.Fatal(err)
+		cfg = &config.ServiceShortURLConfig{
+			Port:       8080,
+			ServerHost: "localhost",
+		}
 	}
 
 	err = app.New(cfg).Start()
