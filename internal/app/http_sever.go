@@ -38,7 +38,7 @@ func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 func (hook *serviceShortURL) Start() error {
 
 	// Launch the listening thread
-	log.Println("Initializing HTTP server 1")
+	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
