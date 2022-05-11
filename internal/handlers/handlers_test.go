@@ -42,7 +42,7 @@ func TestGetShortLinkJSONHandler(t *testing.T) {
 			v := model.RequestAddDBURL{
 				ReqNewURL: "http://ya.ru",
 			}
-			reqBody, err := json.Marshal(v)
+			reqBody, _ := json.Marshal(v)
 			request := httptest.NewRequest(http.MethodPost, "/api/shorten", bytes.NewBuffer(reqBody))
 			request.Header.Set("Content-Type", "application/json; charset=utf-8")
 			th := handlers.WrapperHandler{
