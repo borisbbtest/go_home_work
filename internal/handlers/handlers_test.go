@@ -61,13 +61,10 @@ func TestGetShortLinkJSONHandler(t *testing.T) {
 			// запускаем сервер
 			h.ServeHTTP(w, request)
 			res := w.Result()
-
 			// проверяем код ответа
-
 			if res.StatusCode != tt.want.code {
 				t.Errorf("Expected status code %d, got %d", tt.want.code, w.Code)
 			}
-
 			// получаем и проверяем тело запроса
 			defer res.Body.Close()
 			resBody, err := io.ReadAll(res.Body)
