@@ -62,7 +62,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	defer r.Body.Close()
 }
 
-func (hook *WrapperHandler) PostJsonHandler(w http.ResponseWriter, r *http.Request) {
+func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {

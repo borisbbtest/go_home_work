@@ -57,7 +57,7 @@ func TestGetShortLinkJSONHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер
-			h := http.HandlerFunc(th.PostJsonHandler)
+			h := http.HandlerFunc(th.PostJSONHandler)
 			// запускаем сервер
 			h.ServeHTTP(w, request)
 			res := w.Result()
