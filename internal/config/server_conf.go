@@ -18,8 +18,8 @@ type ServiceShortURLConfig struct {
 }
 
 type ConfigFromENV struct {
-	SERVER_ADDRESS string `env:"SERVER_ADDRESS", required`
-	BASE_URL       string `env:"BASE_URL", required`
+	SERVER_ADDRESS string `env:"SERVER_ADDRESS,required"`
+	BASE_URL       string `env:"BASE_URL,required"`
 }
 type ServerConfig interface {
 	getConfig(filename string) (cfg *ServiceShortURLConfig, err error)
