@@ -52,7 +52,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	hashcode, _ := hook.URLStore.PostURLforRedirect(string(bytes))
-	resp := fmt.Sprintf("http://%s:%d/%s", hook.ServerConf.ServerHost, hook.ServerConf.Port, hashcode)
+	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
@@ -85,7 +85,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	resp := model.ResponseURLShort{
-		ResNewURL: fmt.Sprintf("http://%s:%d/%s", hook.ServerConf.ServerHost, hook.ServerConf.Port, hashcode),
+		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode),
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
