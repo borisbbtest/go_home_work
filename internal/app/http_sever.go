@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
@@ -56,7 +55,7 @@ func (hook *serviceShortURL) Start() error {
 	hook.wrapp.FileServer(r, "/form", filesDir)
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%s", strconv.Itoa(hook.conf.Port)),
+		Addr:         hook.conf.SERVER_ADDRESS,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
