@@ -55,7 +55,7 @@ func (hook *serviceShortURL) Start() error {
 	hook.wrapp.FileServer(r, "/form", filesDir)
 
 	server := &http.Server{
-		Addr:         hook.conf.SERVER_ADDRESS,
+		Addr:         hook.conf.ServerAddress,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

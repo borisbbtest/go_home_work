@@ -11,15 +11,15 @@ import (
 var log = logrus.WithField("context", "service_short_url")
 
 type ServiceShortURLConfig struct {
-	Port           int    `yaml:"port"`
-	ServerHost     string `yaml:"ServerHost"`
-	BASE_URL       string `yaml:"BASE_URL"`
-	SERVER_ADDRESS string `yaml:"SERVER_ADDRESS"`
+	Port          int    `yaml:"port"`
+	ServerHost    string `yaml:"ServerHost"`
+	BaseURL       string `yaml:"BASE_URL"`
+	ServerAddress string `yaml:"SERVER_ADDRESS"`
 }
 
 type ConfigFromENV struct {
-	SERVER_ADDRESS string `env:"SERVER_ADDRESS,required"`
-	BASE_URL       string `env:"BASE_URL,required"`
+	ServerAddress string `env:"SERVER_ADDRESS,required"`
+	BaseURL       string `env:"BASE_URL,required"`
 }
 type ServerConfig interface {
 	getConfig(filename string) (cfg *ServiceShortURLConfig, err error)

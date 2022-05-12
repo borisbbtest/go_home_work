@@ -124,7 +124,7 @@ func TestGetShortLinkHandler(t *testing.T) {
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
-					BASE_URL:   "http://localhost:8080",
+					BaseURL:    "http://localhost:8080",
 				},
 			}
 			// создаём новый Recorder
@@ -193,7 +193,7 @@ func TestStatusHandler(t *testing.T) {
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
-					BASE_URL:   "http://localhost:8080",
+					BaseURL:    "http://localhost:8080",
 				},
 			}
 			// создаём новый Recorder
