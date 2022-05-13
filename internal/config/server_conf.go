@@ -19,8 +19,8 @@ type ServiceShortURLConfig struct {
 }
 
 type ConfigFromENV struct {
-	ServerAddress string `env:"SERVER_ADDRESS,required"`
-	BaseURL       string `env:"BASE_URL,required"`
+	ServerAddress string `env:"SERVER_ADDRESS"`
+	BaseURL       string `env:"BASE_URL"`
 	FileStorePath string `env:"FILE_STORAGE_PATH"`
 }
 type ServerConfig interface {
