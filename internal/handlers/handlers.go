@@ -17,6 +17,7 @@ import (
 type WrapperHandler struct {
 	URLStore   storage.StoreDB
 	ServerConf *config.ServiceShortURLConfig
+	FielDB     *storage.InitStoreDBinFile
 }
 
 var log = logrus.WithField("context", "service_short_url")
@@ -51,8 +52,14 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		log.Fatalln(err)
 	}
 
-	hashcode, _ := hook.URLStore.PostURLforRedirect(string(bytes))
-	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode)
+	hashcode, _ := hook.URLStore.StoreDBinMemory(string(bytes))
+	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
+
+	if hook.FielDB != nil {
+		if hook.FielDB.WriteURL != nil {
+			hook.FielDB.WriteURL.WriteEvent(&hashcode)
+		}
+	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
@@ -79,13 +86,19 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	hashcode, err := hook.URLStore.PostURLforRedirect(m.ReqNewURL)
+	hashcode, err := hook.URLStore.StoreDBinMemory(m.ReqNewURL)
 	if err != nil {
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
+
+	if hook.FielDB != nil {
+		if hook.FielDB.WriteURL != nil {
+			hook.FielDB.WriteURL.WriteEvent(&hashcode)
+		}
+	}
 	resp := model.ResponseURLShort{
-		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode),
+		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

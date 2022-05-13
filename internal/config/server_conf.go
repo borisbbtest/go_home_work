@@ -15,11 +15,13 @@ type ServiceShortURLConfig struct {
 	ServerHost    string `yaml:"ServerHost"`
 	BaseURL       string `yaml:"BASE_URL"`
 	ServerAddress string `yaml:"SERVER_ADDRESS"`
+	FileStorePath string `yaml:"FILE_STORAGE_PATH"`
 }
 
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS,required"`
 	BaseURL       string `env:"BASE_URL,required"`
+	FileStorePath string `env:"FILE_STORAGE_PATH"`
 }
 type ServerConfig interface {
 	getConfig(filename string) (cfg *ServiceShortURLConfig, err error)

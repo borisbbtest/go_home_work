@@ -27,6 +27,7 @@ func main() {
 			ServerHost:    "localhost",
 			BaseURL:       "http://localhost:8080",
 			ServerAddress: "localhost:8080",
+			FileStorePath: "",
 		}
 	}
 	//  получаем переменные среды
@@ -40,6 +41,9 @@ func main() {
 		}
 		if cfgenv.ServerAddress != "" {
 			cfg.BaseURL = cfgenv.BaseURL
+		}
+		if cfgenv.FileStorePath != "" {
+			cfg.FileStorePath = cfgenv.FileStorePath
 		}
 	}
 
