@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -30,16 +32,42 @@ func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 				DBLocal: make(map[string]storage.StorageURL),
 			},
 			ServerConf: cfg,
+			FielDB:     &storage.InitStoreDBinFile{},
 		},
 	}
 }
 
-func (hook *serviceShortURL) Start() error {
+func (hook *serviceShortURL) Start() (err error) {
 
 	// Launch the listening thread
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
+	if hook.conf.FileStorePath != "" {
+		hook.wrapp.FielDB.ReadURL, err = storage.NewConsumer(hook.conf.FileStorePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer hook.wrapp.FielDB.ReadURL.Close()
+
+		hook.wrapp.FielDB.WriteURL, err = storage.NewProducer(hook.conf.FileStorePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer hook.wrapp.FielDB.WriteURL.Close()
+
+		scanner := bufio.NewScanner(hook.wrapp.FielDB.ReadURL.GetFile())
+		// optionally, resize scanner's capacity for lines over 64K, see next example
+		for scanner.Scan() {
+			var m storage.StorageURL
+			if err := json.Unmarshal(scanner.Bytes(), &m); err != nil {
+				log.Errorf("body error: %v", string(scanner.Bytes()))
+				log.Errorf("error decoding message: %v", err)
+			}
+			hook.wrapp.URLStore.DBLocal[m.ShortPath] = m
+		}
+
+	}
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
@@ -61,7 +89,7 @@ func (hook *serviceShortURL) Start() error {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		return fmt.Errorf("can't start the listening thread: %s", err)
 	}
