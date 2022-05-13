@@ -39,7 +39,7 @@ func main() {
 		if cfgenv.ServerAddress != "" {
 			cfg.ServerAddress = cfgenv.ServerAddress
 		}
-		if cfgenv.ServerAddress != "" {
+		if cfgenv.BaseURL != "" {
 			cfg.BaseURL = cfgenv.BaseURL
 		}
 		if cfgenv.FileStorePath != "" {
