@@ -35,7 +35,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(307)
 		//log.Printf("Get handler")
 	} else {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(200)
 		fmt.Fprint(w, "OK")
 		//log.Printf("key not found")
@@ -61,7 +61,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
 	fmt.Fprint(w, resp)
 
@@ -101,7 +101,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	//w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
 
