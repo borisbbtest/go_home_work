@@ -21,6 +21,10 @@ type WrapperHandler struct {
 	ServerConf *config.ServiceShortURLConfig
 	FielDB     *storage.InitStoreDBinFile
 }
+type gzipWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
+}
 
 var log = logrus.WithField("context", "service_short_url")
 
@@ -46,6 +50,35 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(id)
 	defer r.Body.Close()
 	//log.Printf("Get handler")
+}
+
+func (w gzipWriter) Write(b []byte) (int, error) {
+	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	return w.Writer.Write(b)
+}
+
+func (hook *WrapperHandler) GzipHandle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// проверяем, что клиент поддерживает gzip-сжатие
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			// если gzip не поддерживается, передаём управление
+			// дальше без изменений
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// создаём gzip.Writer поверх текущего w
+		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+		if err != nil {
+			io.WriteString(w, err.Error())
+			return
+		}
+		defer gz.Close()
+
+		w.Header().Set("Content-Encoding", "gzip")
+		// передаём обработчику страницы переменную типа gzipWriter для вывода данных
+		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
+	})
 }
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
