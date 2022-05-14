@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -48,7 +50,21 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	var reader io.Reader
+
+	if r.Header.Get(`Content-Encoding`) == `gzip` {
+		gz, err := gzip.NewReader(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+
+	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		log.Fatalln(err)
 	}
