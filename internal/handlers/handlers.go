@@ -28,6 +28,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	// for k, v := range hook.UrlStore.DBLocal {
 	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
 	// }
+	log.Info("ID Go to", id)
 	value, status := hook.URLStore.DBLocal[id]
 	if status {
 		url := value.URL
@@ -52,6 +53,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		log.Fatalln(err)
 	}
 
+	log.Info("PostHandler")
 	hashcode, _ := hook.URLStore.StoreDBinMemory(string(bytes))
 	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
@@ -75,7 +77,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	log.Info("PostJSONHandler")
 	defer r.Body.Close()
 
 	var m model.RequestAddDBURL
