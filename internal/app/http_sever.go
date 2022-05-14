@@ -71,8 +71,8 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
-	r.Use(hook.wrapp.GzipHandle)
-	//r.Use(middleware.Compress(5, "gzip"))
+	//r.Use(hook.wrapp.GzipHandle)
+	r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 
 	r.Get("/{id}", hook.wrapp.GetHandler)
