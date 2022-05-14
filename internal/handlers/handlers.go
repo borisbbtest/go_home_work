@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -50,23 +48,12 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
-	gz, err := gzip.NewReader(r.Body)
+	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	defer gz.Close()
-
-	bytes, err := io.ReadAll(gz)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	} else {
-		bytes, err = ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		log.Fatalln(err)
 	}
 
-	log.Info("PostHandler")
+	log.Info("PostHandler ", string(bytes))
 	hashcode, _ := hook.URLStore.StoreDBinMemory(string(bytes))
 	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
