@@ -1,13 +1,15 @@
 package main
 
 import (
-	"flag"
 	"os"
+
+	goflag "flag"
 
 	"github.com/borisbbtest/go_home_work/internal/app"
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
+	flag "github.com/spf13/pflag"
 )
 
 var log = logrus.WithField("context", "main")
@@ -18,8 +20,12 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{DisableColors: true})
 
 	configFileName := flag.String("config", "./config.yml", "path to the configuration file")
+	var ServerAddress, BaseURL, FilePath string
+	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
+	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
+	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
+	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	flag.Parse()
-
 	cfg, err := config.GetConfig(*configFileName)
 	if err != nil {
 		cfg = &config.ServiceShortURLConfig{
@@ -30,6 +36,7 @@ func main() {
 			FileStorePath: "",
 		}
 	}
+
 	//  получаем переменные среды
 	var cfgenv config.ConfigFromENV
 	e := env.Parse(&cfgenv)
@@ -45,6 +52,16 @@ func main() {
 		if cfgenv.FileStorePath != "" {
 			cfg.FileStorePath = cfgenv.FileStorePath
 		}
+	}
+
+	if ServerAddress != "" {
+		cfg.ServerAddress = ServerAddress
+	}
+	if BaseURL != "" {
+		cfg.BaseURL = BaseURL
+	}
+	if FilePath != "" {
+		cfg.FileStorePath = FilePath
 	}
 
 	err = app.New(cfg).Start()
