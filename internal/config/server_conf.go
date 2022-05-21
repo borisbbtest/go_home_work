@@ -1,10 +1,8 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
-
 	goflag "flag"
+	"io/ioutil"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -43,7 +41,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	log.Infof("Loading configuration at '%s'", configFileName)
 	configFile, err := ioutil.ReadFile(configFileName)
 	if err != nil {
-		fmt.Errorf("can't open the config file: %s", err)
+		log.Errorf("can't open the config file: %s", err)
 
 	}
 	// Default values
@@ -57,7 +55,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 
 	err = yaml.Unmarshal(configFile, &config)
 	if err != nil {
-		fmt.Errorf("can't read the config file: %s", err)
+		log.Errorf("can't read the config file: %s", err)
 	}
 
 	var cfgenv ConfigFromENV
