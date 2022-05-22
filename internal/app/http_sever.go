@@ -39,7 +39,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	if err != nil {
 		log.Error(err)
 	}
-	hook.wrapp.Storage.Close()
+	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
