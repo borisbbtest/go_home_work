@@ -17,9 +17,8 @@ import (
 )
 
 type WrapperHandler struct {
-	URLStore   storage.StoreDB
 	ServerConf *config.ServiceShortURLConfig
-	FielDB     *storage.InitStoreDBinFile
+	Storage    storage.Storage
 }
 type gzipWriter struct {
 	http.ResponseWriter
@@ -35,8 +34,8 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
 	// }
 	log.Info("ID Go to", id)
-	value, status := hook.URLStore.DBLocal[id]
-	if status {
+	value, status := hook.Storage.Get(id)
+	if status != nil {
 		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)
@@ -103,14 +102,10 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	log.Info("PostHandler ", string(bytes))
-	hashcode, _ := hook.URLStore.StoreDBinMemory(string(bytes))
-	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
-	if hook.FielDB != nil {
-		if hook.FielDB.WriteURL != nil {
-			hook.FielDB.WriteURL.WriteEvent(&hashcode)
-		}
-	}
+	hashcode, _ := storage.ParserDataURL(string(bytes))
+	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
+	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
@@ -151,17 +146,13 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	hashcode, err := hook.URLStore.StoreDBinMemory(m.ReqNewURL)
+	hashcode, err := storage.ParserDataURL(m.ReqNewURL)
 	if err != nil {
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
+	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
-	if hook.FielDB != nil {
-		if hook.FielDB.WriteURL != nil {
-			hook.FielDB.WriteURL.WriteEvent(&hashcode)
-		}
-	}
 	resp := model.ResponseURLShort{
 		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
 	}

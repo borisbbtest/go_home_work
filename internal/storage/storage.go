@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"net"
 	"net/url"
 
@@ -9,24 +8,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type StorageURL struct {
+type DataURL struct {
 	Port      string `json:"Port"`
 	URL       string `json:"URL"`
 	Path      string `json:"Path"`
 	ShortPath string `json:"ShortPath"`
 }
 
-type StoreDB struct {
-	DBLocal map[string]StorageURL
+type StoreDBLocal struct {
+	DBLocal map[string]DataURL
 }
-type IStorageURL interface {
-	StoreDBinMemory(str string) (res string, err error)
-	GetShortURLfromDBinMemory(urlshort string) (resdirect string)
+type Storage interface {
+	Put(k string, v DataURL) error
+	Get(k string) (DataURL, error)
 }
 
 var log = logrus.WithField("context", "service_short_url")
 
-func (store *StoreDB) StoreDBinMemory(str string) (res StorageURL, err error) {
+func ParserDataURL(str string) (res DataURL, err error) {
 
 	url, err := url.ParseRequestURI(str)
 	if err != nil {
@@ -40,13 +39,5 @@ func (store *StoreDB) StoreDBinMemory(str string) (res StorageURL, err error) {
 	res.Port = url.Port()
 	res.URL = str
 	res.ShortPath = hesh
-	store.DBLocal[hesh] = res
-	return
-}
-
-func (store *StoreDB) GetShortURLfromDBinMemory(urlshort string) (resdirect string) {
-	if _, ok := store.DBLocal[urlshort]; ok {
-		return fmt.Sprintf("%s", store.DBLocal[urlshort])
-	}
 	return
 }
