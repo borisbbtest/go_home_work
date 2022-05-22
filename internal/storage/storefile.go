@@ -58,7 +58,7 @@ func (hook StoreDBinFile) Get(k string) (DataURL, error) {
 	if _, ok := hook.DB[k]; ok {
 		return hook.DB[k], nil
 	} else {
-		return DataURL{}, errors.New("Key not found")
+		return DataURL{}, errors.New("key not found")
 	}
 }
 
@@ -87,7 +87,7 @@ func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 		res.RestoreDdBackupURL()
 
 	} else {
-		err = errors.New("File path empty")
+		err = errors.New("file path empty")
 	}
 	return
 
