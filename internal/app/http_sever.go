@@ -37,8 +37,10 @@ func (hook *serviceShortURL) Start() (err error) {
 
 	hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
 	if err != nil {
-
+		log.Error(err)
 	}
+	hook.wrapp.Storage.Close()
+
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)

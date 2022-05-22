@@ -36,7 +36,7 @@ func (hook StoreDBinFile) RestoreDdBackupURL() {
 			log.Errorf("body error: %v", string(scanner.Bytes()))
 			log.Errorf("error decoding message: %v", err)
 		}
-		hook.Put(m.ShortPath, m)
+		hook.DB[m.ShortPath] = m
 	}
 
 }
@@ -46,7 +46,7 @@ func (hook StoreDBinFile) Put(k string, v DataURL) error {
 	if hook.WriteURL != nil {
 		if hook.WriteURL != nil {
 			if err := hook.WriteEvent(&v); err != nil {
-				log.Error(err)
+				log.Error("Try write ", err)
 			}
 
 		}
@@ -62,6 +62,11 @@ func (hook StoreDBinFile) Get(k string) (DataURL, error) {
 	}
 }
 
+func (hook StoreDBinFile) Close() {
+	hook.WriteURL.Close()
+	hook.ReadURL.Close()
+}
+
 func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 
 	res = &StoreDBinFile{
@@ -72,13 +77,13 @@ func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer res.ReadURL.Close()
+		//defer res.ReadURL.Close()
 
 		res.WriteURL, err = tools.NewProducer(filename)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer res.WriteURL.Close()
+		//defer res.WriteURL.Close()
 		res.RestoreDdBackupURL()
 
 	} else {
