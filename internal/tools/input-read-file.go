@@ -16,7 +16,7 @@ type Producer struct {
 }
 
 func NewProducer(fileName string) (*Producer, error) {
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (p *Producer) Close() error {
 }
 
 func NewConsumer(fileName string) (*Consumer, error) {
-	file, err := os.OpenFile(fileName, os.O_RDONLY|os.O_CREATE, 0777)
+	file, err := os.OpenFile(fileName, os.O_RDONLY|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
 	}
