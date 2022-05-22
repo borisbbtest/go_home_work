@@ -35,7 +35,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 	log.Info("ID Go to", id)
 	value, status := hook.Storage.Get(id)
-	if status != nil {
+	if status == nil {
 		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)

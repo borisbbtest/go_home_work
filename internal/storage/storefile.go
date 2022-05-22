@@ -50,6 +50,7 @@ func (hook StoreDBinFile) Put(k string, v DataURL) error {
 	}
 	return nil
 }
+
 func (hook StoreDBinFile) Get(k string) (DataURL, error) {
 	if _, ok := hook.DB[k]; ok {
 		return hook.DB[k], nil

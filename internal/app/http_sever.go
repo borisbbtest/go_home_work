@@ -39,7 +39,6 @@ func (hook *serviceShortURL) Start() (err error) {
 	if err != nil {
 
 	}
-
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
