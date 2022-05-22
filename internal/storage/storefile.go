@@ -45,7 +45,10 @@ func (hook StoreDBinFile) Put(k string, v DataURL) error {
 	hook.DB[k] = v
 	if hook.WriteURL != nil {
 		if hook.WriteURL != nil {
-			hook.WriteEvent(&v)
+			if err := hook.WriteEvent(&v); err != nil {
+				log.Error(err)
+			}
+
 		}
 	}
 	return nil
