@@ -23,7 +23,7 @@ type StoreDBLocal struct {
 type Storage interface {
 	Put(k string, v DataURL) error
 	Get(k string) (DataURL, error)
-	GetAll(k string, dom string) (model.ResponseURLShortALL, error)
+	GetAll(k string, dom string) ([]model.ResponseURL, error)
 	Close()
 }
 

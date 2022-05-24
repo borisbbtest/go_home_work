@@ -66,8 +66,8 @@ func (hook StoreDBinFile) Get(k string) (DataURL, error) {
 	}
 }
 
-func (hook StoreDBinFile) GetAll(k string, dom string) (model.ResponseURLShortALL, error) {
-	buff := model.ResponseURLShortALL{}
+func (hook StoreDBinFile) GetAll(k string, dom string) ([]model.ResponseURL, error) {
+	buff := []model.ResponseURL{}
 	if _, ok := hook.ListUser[k]; ok {
 		for i := 0; i < len(hook.ListUser[k]); i++ {
 			v := hook.ListUser[k][i]
@@ -76,12 +76,12 @@ func (hook StoreDBinFile) GetAll(k string, dom string) (model.ResponseURLShortAL
 					ShortURL:    fmt.Sprintf("%s/%s", dom, hook.DB[v].ShortPath),
 					OriginalURL: hook.DB[v].URL,
 				}
-				buff.ListsURL = append(buff.ListsURL, rp)
+				buff = append(buff, rp)
 			}
 		}
 		return buff, nil
 	} else {
-		return model.ResponseURLShortALL{}, errors.New("key not found")
+		return buff, errors.New("key not found")
 	}
 }
 
