@@ -63,15 +63,15 @@ func (hook *WrapperHandler) GetHandlerPing(w http.ResponseWriter, r *http.Reques
 	_, status := tools.PingDataBase(hook.ServerConf.DataBaseDSN)
 	if status != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(200)
-		fmt.Fprint(w, "ok")
+		w.WriteHeader(500)
+		fmt.Fprint(w, "error connection")
 		return
 		//log.Printf("Get handler")
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(500)
-	fmt.Fprint(w, "error connection")
+	w.WriteHeader(200)
+	fmt.Fprint(w, "ok")
 
 	//log.Printf("Get handler")
 }
