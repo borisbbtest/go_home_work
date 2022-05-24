@@ -46,15 +46,13 @@ func TestGetShortLinkJSONHandler(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "/api/shorten", bytes.NewBuffer(reqBody))
 			request.Header.Set("Content-Type", "application/json; charset=utf-8")
 			th := handlers.WrapperHandler{
-				URLStore: storage.StoreDB{
-					DBLocal: make(map[string]storage.StorageURL),
-				},
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
 					BaseURL:    "http://localhost:8080",
 				},
 			}
+			th.Storage, _ = storage.NewFileStorage("")
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер
@@ -118,15 +116,14 @@ func TestGetShortLinkHandler(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte("http://yandex.ru")))
 			request.Header.Set("Content-Type", "text/plain; charset=utf-8")
 			th := handlers.WrapperHandler{
-				URLStore: storage.StoreDB{
-					DBLocal: make(map[string]storage.StorageURL),
-				},
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
 					BaseURL:    "http://localhost:8080",
 				},
 			}
+			th.Storage, _ = storage.NewFileStorage("")
+
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер
@@ -187,15 +184,14 @@ func TestStatusHandler(t *testing.T) {
 			request := httptest.NewRequest(http.MethodGet, "/", nil)
 
 			th := handlers.WrapperHandler{
-				URLStore: storage.StoreDB{
-					DBLocal: make(map[string]storage.StorageURL),
-				},
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
 					BaseURL:    "http://localhost:8080",
 				},
 			}
+			th.Storage, _ = storage.NewFileStorage("")
+
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер

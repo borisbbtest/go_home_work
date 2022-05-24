@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -15,9 +17,12 @@ import (
 )
 
 type WrapperHandler struct {
-	URLStore   storage.StoreDB
 	ServerConf *config.ServiceShortURLConfig
-	FielDB     *storage.InitStoreDBinFile
+	Storage    storage.Storage
+}
+type gzipWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
 }
 
 var log = logrus.WithField("context", "service_short_url")
@@ -28,8 +33,9 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	// for k, v := range hook.UrlStore.DBLocal {
 	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
 	// }
-	value, status := hook.URLStore.DBLocal[id]
-	if status {
+	log.Info("ID Go to", id)
+	value, status := hook.Storage.Get(id)
+	if status == nil {
 		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)
@@ -45,21 +51,61 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	//log.Printf("Get handler")
 }
 
+func (w gzipWriter) Write(b []byte) (int, error) {
+	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	return w.Writer.Write(b)
+}
+
+func (hook *WrapperHandler) GzipHandle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// проверяем, что клиент поддерживает gzip-сжатие
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			// если gzip не поддерживается, передаём управление
+			// дальше без изменений
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// создаём gzip.Writer поверх текущего w
+		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+		if err != nil {
+			io.WriteString(w, err.Error())
+			return
+		}
+		defer gz.Close()
+
+		w.Header().Set("Content-Encoding", "gzip")
+		// передаём обработчику страницы переменную типа gzipWriter для вывода данных
+		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
+	})
+}
+
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	var reader io.Reader
+
+	if r.Header.Get(`Content-Encoding`) == `gzip` {
+		gz, err := gzip.NewReader(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+
+	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	hashcode, _ := hook.URLStore.StoreDBinMemory(string(bytes))
-	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
+	log.Info("PostHandler ", string(bytes))
 
-	if hook.FielDB != nil {
-		if hook.FielDB.WriteURL != nil {
-			hook.FielDB.WriteURL.WriteEvent(&hashcode)
-		}
-	}
+	hashcode, _ := storage.ParserDataURL(string(bytes))
+	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
+	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
@@ -71,11 +117,25 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 
 func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Request) {
 
-	bytes, err := ioutil.ReadAll(r.Body)
+	var reader io.Reader
+
+	if r.Header.Get(`Content-Encoding`) == `gzip` {
+		gz, err := gzip.NewReader(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+
+	bytes, err := ioutil.ReadAll(reader)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	log.Info("PostJSONHandler")
 	defer r.Body.Close()
 
 	var m model.RequestAddDBURL
@@ -86,17 +146,13 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	hashcode, err := hook.URLStore.StoreDBinMemory(m.ReqNewURL)
+	hashcode, err := storage.ParserDataURL(m.ReqNewURL)
 	if err != nil {
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
+	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
-	if hook.FielDB != nil {
-		if hook.FielDB.WriteURL != nil {
-			hook.FielDB.WriteURL.WriteEvent(&hashcode)
-		}
-	}
 	resp := model.ResponseURLShort{
 		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
 	}
