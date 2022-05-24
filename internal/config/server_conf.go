@@ -18,11 +18,13 @@ type ServiceShortURLConfig struct {
 	BaseURL       string `yaml:"BASE_URL"`
 	ServerAddress string `yaml:"SERVER_ADDRESS"`
 	FileStorePath string `yaml:"FILE_STORAGE_PATH"`
+	DataBaseDSN   string `yaml:"DATABASE_DSN"`
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
 	BaseURL       string `env:"BASE_URL"`
 	FileStorePath string `env:"FILE_STORAGE_PATH"`
+	DataBaseDSN   string `env:"DATABASE_DSN"`
 }
 type ServerConfig interface {
 	GetConfig() (config *ServiceShortURLConfig, err error)
@@ -30,11 +32,12 @@ type ServerConfig interface {
 
 func GetConfig() (config *ServiceShortURLConfig, err error) {
 
-	var ServerAddress, BaseURL, FilePath, configFileName string
+	var ServerAddress, BaseURL, FilePath, configFileName, DataBaseDSN string
 	flag.StringVarP(&configFileName, "config", "c", "./config.yml", "path to the configuration file")
 	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
+	flag.StringVarP(&DataBaseDSN, "dsn", "d", "", "Set driver DSN ")
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	flag.Parse()
 
@@ -72,6 +75,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		if cfgenv.FileStorePath != "" {
 			config.FileStorePath = cfgenv.FileStorePath
 		}
+		if cfgenv.DataBaseDSN != "" {
+			config.DataBaseDSN = cfgenv.DataBaseDSN
+		}
 	}
 
 	if ServerAddress != "" {
@@ -83,7 +89,10 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	if FilePath != "" {
 		config.FileStorePath = FilePath
 	}
-
+	if DataBaseDSN != "" {
+		config.DataBaseDSN = DataBaseDSN
+	}
+	log.Info(config.DataBaseDSN)
 	log.Info("Configuration loaded")
 	return
 }

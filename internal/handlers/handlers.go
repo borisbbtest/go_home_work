@@ -183,6 +183,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
+
 	tmp, _ := tools.GetID()
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
