@@ -8,10 +8,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -48,6 +50,30 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(id)
 	defer r.Body.Close()
+	//log.Printf("Get handler")
+}
+
+func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Request) {
+
+	v, status := tools.GetCookie(r, "ShortURL")
+	if status != nil {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(204)
+		fmt.Fprint(w, "No Content")
+		return
+		//log.Printf("Get handler")
+	}
+
+	j, err := hook.Storage.GetAll(v, fmt.Sprintf("%s", hook.ServerConf.BaseURL))
+
+	if err != nil || len(j.ListsURL) <= 0 {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(204)
+		fmt.Fprint(w, "No Content")
+		return
+	}
+	json.NewEncoder(w).Encode(j)
+
 	//log.Printf("Get handler")
 }
 
@@ -105,9 +131,14 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 
 	hashcode, _ := storage.ParserDataURL(string(bytes))
 	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
+
+	tmp, _ := tools.GetID()
+	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
+	hashcode.UserID = fmt.Sprintf("%s", v)
 	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	w.WriteHeader(201)
 	fmt.Fprint(w, resp)
 
@@ -151,6 +182,9 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
+	tmp, _ := tools.GetID()
+	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
+	hashcode.UserID = fmt.Sprintf("%s", v)
 	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	resp := model.ResponseURLShort{

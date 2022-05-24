@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"crypto/aes"
+	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"math/big"
@@ -35,4 +37,34 @@ func GenerateShortLink(initialLink string) string {
 	generatedNumber := new(big.Int).SetBytes(urlHashBytes).Uint64()
 	finalString := base58Encoded([]byte(fmt.Sprintf("%d", generatedNumber)))
 	return finalString[:8]
+}
+
+func GenerateRandom(size int) ([]byte, error) {
+	b := make([]byte, size)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func GetID() (res []byte, err error) {
+	src := []byte("Ключ от сердца")
+
+	key, err := GenerateRandom(aes.BlockSize)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+
+	aesblock, err := aes.NewCipher(key)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+
+	res = make([]byte, aes.BlockSize)
+	aesblock.Encrypt(res, src)
+	return
 }

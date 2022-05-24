@@ -51,6 +51,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Get("/{id}", hook.wrapp.GetHandler)
 	r.Post("/", hook.wrapp.PostHandler)
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
+	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
 	r.Get("/", hook.wrapp.GetHandler)
 
 	workDir, _ := os.Getwd()

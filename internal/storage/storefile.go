@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 
+	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/tools"
 )
 
@@ -12,6 +14,7 @@ type StoreDBinFile struct {
 	ReadURL  *tools.Consumer
 	WriteURL *tools.Producer
 	DB       map[string]DataURL
+	ListUser map[string][]string
 }
 
 func (hook *StoreDBinFile) WriteEvent(event *DataURL) error {
@@ -43,6 +46,7 @@ func (hook StoreDBinFile) RestoreDdBackupURL() {
 
 func (hook StoreDBinFile) Put(k string, v DataURL) error {
 	hook.DB[k] = v
+	hook.ListUser[v.UserID] = append(hook.ListUser[v.UserID], v.ShortPath)
 	if hook.WriteURL != nil {
 		if hook.WriteURL != nil {
 			if err := hook.WriteEvent(&v); err != nil {
@@ -62,6 +66,25 @@ func (hook StoreDBinFile) Get(k string) (DataURL, error) {
 	}
 }
 
+func (hook StoreDBinFile) GetAll(k string, dom string) (model.ResponseURLShortALL, error) {
+	buff := model.ResponseURLShortALL{}
+	if _, ok := hook.ListUser[k]; ok {
+		for i := 0; i < len(hook.ListUser[k]); i++ {
+			v := hook.ListUser[k][i]
+			if _, ok := hook.DB[v]; ok {
+				rp := model.ResponseURL{
+					ShortURL:    fmt.Sprintf("%s/%s", dom, hook.DB[v].ShortPath),
+					OriginalURL: hook.DB[v].URL,
+				}
+				buff.ListsURL = append(buff.ListsURL, rp)
+			}
+		}
+		return buff, nil
+	} else {
+		return model.ResponseURLShortALL{}, errors.New("key not found")
+	}
+}
+
 func (hook StoreDBinFile) Close() {
 	hook.WriteURL.Close()
 	hook.ReadURL.Close()
@@ -70,8 +93,10 @@ func (hook StoreDBinFile) Close() {
 func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 
 	res = &StoreDBinFile{
-		DB: make(map[string]DataURL),
+		DB:       make(map[string]DataURL),
+		ListUser: make(map[string][]string),
 	}
+
 	if filename != "" {
 		res.ReadURL, err = tools.NewConsumer(filename)
 		if err != nil {
