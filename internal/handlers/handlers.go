@@ -64,7 +64,7 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 		//log.Printf("Get handler")
 	}
 
-	j, err := hook.Storage.GetAll(v, fmt.Sprintf("%s", hook.ServerConf.BaseURL))
+	j, err := hook.Storage.GetAll(v, hook.ServerConf.BaseURL)
 
 	if err != nil || len(j) <= 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -135,7 +135,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 
 	tmp, _ := tools.GetID()
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
-	hashcode.UserID = fmt.Sprintf("%s", v)
+	hashcode.UserID = v
 	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -185,7 +185,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	}
 	tmp, _ := tools.GetID()
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
-	hashcode.UserID = fmt.Sprintf("%s", v)
+	hashcode.UserID = v
 	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	resp := model.ResponseURLShort{
