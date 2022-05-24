@@ -14,9 +14,10 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/borisbbtest/go_home_work/internal/tools"
-	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.WithField("context", "service_short_url")
 
 type WrapperHandler struct {
 	ServerConf *config.ServiceShortURLConfig
@@ -25,57 +26,6 @@ type WrapperHandler struct {
 type gzipWriter struct {
 	http.ResponseWriter
 	Writer io.Writer
-}
-
-var log = logrus.WithField("context", "service_short_url")
-
-func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
-
-	id := chi.URLParam(r, "id")
-	// for k, v := range hook.UrlStore.DBLocal {
-	// 	fmt.Printf("key[%s] value[%s]\n", k, v.Url)
-	// }
-	log.Info("ID Go to", id)
-	value, status := hook.Storage.Get(id)
-	if status == nil {
-		url := value.URL
-		w.Header().Set("Location", url)
-		w.WriteHeader(307)
-		//log.Printf("Get handler")
-	} else {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(200)
-		fmt.Fprint(w, "OK")
-		//log.Printf("key not found")
-	}
-	fmt.Println(id)
-	defer r.Body.Close()
-	//log.Printf("Get handler")
-}
-
-func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Request) {
-
-	v, status := tools.GetCookie(r, "ShortURL")
-	if status != nil {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(204)
-		fmt.Fprint(w, "No Content")
-		return
-		//log.Printf("Get handler")
-	}
-
-	j, err := hook.Storage.GetAll(v, hook.ServerConf.BaseURL)
-
-	if err != nil || len(j) <= 0 {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(204)
-		fmt.Fprint(w, "No Content")
-		return
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(j)
-
-	//log.Printf("Get handler")
 }
 
 func (w gzipWriter) Write(b []byte) (int, error) {
@@ -199,23 +149,4 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 
 	log.Println("Post handler")
 	defer r.Body.Close()
-}
-
-func (hook *WrapperHandler) FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
-	}
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-	log.Println(path)
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
-		fs.ServeHTTP(w, r)
-	})
 }

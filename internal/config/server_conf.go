@@ -92,6 +92,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	if DataBaseDSN != "" {
 		config.DataBaseDSN = DataBaseDSN
 	}
+	//***postgres:5432/praktikum?sslmode=disable
 	log.Info(config.DataBaseDSN)
 	log.Info("Configuration loaded")
 	return
