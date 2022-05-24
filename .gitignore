@@ -22,4 +22,3 @@ vendor/
 .idea
 .vscode
 cmd/test
-internal/postgres/*
