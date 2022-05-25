@@ -1,6 +1,6 @@
 package postgres
 
-const pluginName = "Postgres"
+import "time"
 
 type Plugin struct {
 	connMgr *connManager
@@ -8,8 +8,12 @@ type Plugin struct {
 
 type requestHandler func(conn *postgresConn, key string, params []string) (res interface{}, err error)
 
-// impl is the pointer to the plugin implementation.
-var impl Plugin
+func (p *Plugin) Start() {
+	p.connMgr = p.NewConnManager(
+		time.Duration(20000)*time.Second,
+		time.Duration(20000)*time.Second,
+	)
+}
 
 func (p *Plugin) Stop() {
 	p.connMgr.stop()
@@ -50,23 +54,25 @@ func whereToConnect(params []string) (u *URI, err error) {
 }
 
 // Export implements the Exporter interface.
-func (p *Plugin) NewDBConn(key string, params []string) (result interface{}, err error) {
+func (p *Plugin) NewDBConn(key string, params []string, dsnString string) (result interface{}, err error) {
 	var (
 		handler       requestHandler
 		handlerParams []string
 	)
-
+	var connString string
 	u, err := whereToConnect(params)
 	if err != nil {
-		return nil, err
+		connString = dsnString
+	} else {
+		// get connection string for PostgreSQL
+		connString = u.URI()
 	}
-	// get connection string for PostgreSQL
-	connString := u.URI()
 	switch key {
 	case keyPostgresConnections:
 		handler = p.connectionsHandler // postgres.connections[[connString]]
 	case keyPostgresPing:
 		handler = p.pingHandler // postgres.ping[[connString]]
+	default:
 		return nil, errorUnsupportedQuery
 	}
 

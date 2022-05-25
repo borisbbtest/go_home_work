@@ -4,6 +4,8 @@ import (
 	goflag "flag"
 	"io/ioutil"
 
+	"github.com/borisbbtest/go_home_work/internal/postgres"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
@@ -94,6 +96,15 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	//***postgres:5432/praktikum?sslmode=disable
 	log.Info(config.DataBaseDSN)
+
+	r, r2 := tools.PingDataBase(config.DataBaseDSN)
+	log.Error("%b %s", r, r2)
+
+	var pgp postgres.Plugin
+	pgp.Start()
+	t, w := pgp.NewDBConn("pgsql.ping", []string{}, config.DataBaseDSN)
+	log.Error("--- >", w, "---- ", t)
+	pgp.Stop()
 	log.Info("Configuration loaded")
 	return
 }

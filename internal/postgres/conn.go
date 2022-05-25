@@ -29,6 +29,32 @@ func (p *postgresConn) updateAccessTime() {
 	p.lastTimeAccess = time.Now()
 }
 
+func (p *Plugin) NewConnManager(keepAlive, timeout time.Duration) *connManager {
+	connMgr := &connManager{
+		connections: make(map[string]*postgresConn),
+		keepAlive:   keepAlive,
+		timeout:     timeout,
+		controlSink: make(chan interface{}),
+	}
+
+	// Repeatedly check for unused connections and close them
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		for {
+			select {
+			case <-connMgr.controlSink:
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				if err := connMgr.closeUnused(); err != nil {
+					log.Errorf("Error occurred while closing postgresCon: ", err)
+				}
+			}
+		}
+	}()
+	return connMgr
+}
+
 func (p *postgresConn) finalize() (err error) {
 	p.Lock()
 	defer p.Unlock()
