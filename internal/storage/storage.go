@@ -36,12 +36,12 @@ func ParserDataURL(str string) (res DataURL, err error) {
 		log.Info(err.Error())
 		return res, err
 	}
-	hesh := tools.GenerateShortLink(str)
+	hash := tools.GenerateShortLink(str)
 	address := net.ParseIP(url.Host)
 	log.Println("url-info", "host", address)
 	res.Path = url.Path
 	res.Port = url.Port()
 	res.URL = str
-	res.ShortPath = hesh
+	res.ShortPath = hash
 	return
 }

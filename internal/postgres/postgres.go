@@ -72,6 +72,8 @@ func (p *Plugin) NewDBConn(key string, params []string, dsnString string) (resul
 		handler = p.connectionsHandler // postgres.connections[[connString]]
 	case keyPostgresPing:
 		handler = p.pingHandler // postgres.ping[[connString]]
+	case keyPostgresCreateDdURL:
+		handler = p.CreateDdURLHandler
 	default:
 		return nil, errorUnsupportedQuery
 	}
