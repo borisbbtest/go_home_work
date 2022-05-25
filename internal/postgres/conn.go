@@ -47,7 +47,7 @@ func (p *Plugin) NewConnManager(keepAlive, timeout time.Duration) *connManager {
 				return
 			case <-ticker.C:
 				if err := connMgr.closeUnused(); err != nil {
-					log.Errorf("Error occurred while closing postgresCon: ", err)
+					log.Error("error occurred while closing postgresCon: ", err)
 				}
 			}
 		}
