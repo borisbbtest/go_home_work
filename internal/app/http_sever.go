@@ -35,6 +35,12 @@ func (hook *serviceShortURL) Start() (err error) {
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
+	// var pgp postgres.Plugin
+	// pgp.Start()
+	// t, w := pgp.NewDBConn("pgsql.ping", []string{}, hook.wrapp.ServerConf.DataBaseDSN)
+	// log.Error("--- >", w, "---- ", t)
+	// pgp.Stop()
+
 	hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
 	if err != nil {
 		log.Error(err)
