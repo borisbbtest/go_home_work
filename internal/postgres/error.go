@@ -56,5 +56,5 @@ func sanitizeError(errText, connString string) (err error) {
 		sanitizedErrorString = errText[len(connString):]
 	}
 
-	return fmt.Errorf("invalid connection string: %s:", sanitizedErrorString)
+	return fmt.Errorf("invalid connection string: %s", sanitizedErrorString)
 }
