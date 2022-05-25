@@ -71,7 +71,7 @@ func (p *postgresConn) finalize() (err error) {
 	}
 
 	if version < 100000 {
-		return fmt.Errorf("Postgres version %s is not supported", versionPG)
+		return fmt.Errorf("postgres version %s is not supported", versionPG)
 	}
 
 	p.version = version
@@ -116,7 +116,7 @@ func (c *connManager) get(connString string) *postgresConn {
 	if !ok {
 		conn = &postgresConn{connString: connString, timeout: c.timeout}
 		c.connections[connString] = conn
-		log.Info("created new connection %s", connString)
+		log.Info("created new connection ", connString)
 	}
 	conn.updateAccessTime()
 	return conn
@@ -131,7 +131,7 @@ func (c *connManager) closeUnused() (err error) {
 		if time.Since(conn.lastTimeAccess) > c.keepAlive {
 			conn.close()
 			delete(c.connections, connString)
-			log.Info("closed unused connection: %s", connString)
+			log.Info("closed unused connection: ", connString)
 		}
 	}
 	// Return the last error only
@@ -146,7 +146,7 @@ func (c *connManager) GetPostgresConnection(connString string) (conn *postgresCo
 		defer c.Unlock()
 		delete(c.connections, connString)
 		logrus.Info("removed failed connection %s: %s", connString, err)
-		return nil, fmt.Errorf("Cannot establish connection to Postgres server: %s", err)
+		return nil, fmt.Errorf("cannot establish connection to Postgres server: ", err)
 	}
 	return
 }
