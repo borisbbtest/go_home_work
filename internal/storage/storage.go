@@ -45,11 +45,11 @@ func ParserDataURLBatch(str *[]model.RequestBatch, basedurl string, userid strin
 	res2 = []model.ResponseBatch{}
 	for _, element := range *str {
 		if k, err := ParserDataURL(element.OriginalURL); err == nil {
-			k.CorrelationId = element.CorrelationId
+			k.CorrelationID = element.CorrelationID
 			k.UserID = userid
 			res = append(res, k)
 			res2 = append(res2, model.ResponseBatch{
-				CorrelationId: element.CorrelationId,
+				CorrelationID: element.CorrelationID,
 				ShortURL:      fmt.Sprintf("%s/%s", basedurl, k.ShortPath),
 			})
 		}

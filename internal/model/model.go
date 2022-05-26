@@ -12,11 +12,11 @@ type ResponseURL struct {
 	OriginalURL string `json:"original_url"`
 }
 type ResponseBatch struct {
-	CorrelationId string `json:"correlation_id"`
+	CorrelationID string `json:"correlation_id"`
 	ShortURL      string `json:"short_url"`
 }
 type RequestBatch struct {
-	CorrelationId string `json:"correlation_id"`
+	CorrelationID string `json:"correlation_id"`
 	OriginalURL   string `json:"original_url"`
 }
 type DataURL struct {
@@ -25,5 +25,5 @@ type DataURL struct {
 	Path          string `json:"Path"`
 	ShortPath     string `json:"ShortPath"`
 	UserID        string `json:"UserID"`
-	CorrelationId string `json:"correlation_id"`
+	CorrelationID string `json:"correlation_id"`
 }

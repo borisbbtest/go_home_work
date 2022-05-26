@@ -21,7 +21,7 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 		VALUES ($1, $2, $3, $4, $5, $6);`
 
 	for _, v := range ft {
-		_, err = conn.postgresPool.Exec(context.Background(), query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationId)
+		_, err = conn.postgresPool.Exec(context.Background(), query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationID)
 		if err != nil {
 			log.Error(err)
 		}
