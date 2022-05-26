@@ -150,3 +150,56 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	log.Println("Post handler")
 	defer r.Body.Close()
 }
+
+func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.Request) {
+
+	var reader io.Reader
+
+	if r.Header.Get(`Content-Encoding`) == `gzip` {
+		gz, err := gzip.NewReader(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+
+	bytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Info("PostJSONHandler")
+	defer r.Body.Close()
+
+	var m []model.RequestBatch
+	if err := json.Unmarshal(bytes, &m); err != nil {
+		log.Errorf("body error: %v", string(bytes))
+		log.Errorf("error decoding message: %v", err)
+		http.Error(w, "request body is not valid json", 400)
+		return
+	}
+
+	tmp, _ := tools.GetID()
+	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
+
+	res1, res2 := storage.ParserDataURLBatch(&m, hook.ServerConf.BaseURL, v)
+	if err != nil {
+		http.Error(w, "request body is not valid URL", 400)
+		return
+	}
+	hook.Storage.PutBatch(v, res1)
+
+	// resp := model.ResponseURLShort{
+	// 	ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
+	// }
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(res2)
+
+	log.Println("Post handler")
+	defer r.Body.Close()
+}

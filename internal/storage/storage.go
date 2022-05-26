@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"net"
 	"net/url"
 
@@ -17,6 +18,7 @@ type Storage interface {
 	Put(k string, v model.DataURL) error
 	Get(k string) (model.DataURL, error)
 	GetAll(k string, dom string) ([]model.ResponseURL, error)
+	PutBatch(k string, v []model.DataURL) error
 	Close()
 }
 
@@ -36,5 +38,21 @@ func ParserDataURL(str string) (res model.DataURL, err error) {
 	res.Port = url.Port()
 	res.URL = str
 	res.ShortPath = hash
+	return
+}
+func ParserDataURLBatch(str *[]model.RequestBatch, basedurl string, userid string) (res []model.DataURL, res2 []model.ResponseBatch) {
+	res = []model.DataURL{}
+	res2 = []model.ResponseBatch{}
+	for _, element := range *str {
+		if k, err := ParserDataURL(element.OriginalURL); err == nil {
+			k.CorrelationId = element.CorrelationId
+			k.UserID = userid
+			res = append(res, k)
+			res2 = append(res2, model.ResponseBatch{
+				CorrelationId: element.CorrelationId,
+				ShortURL:      fmt.Sprintf("%s/%s", basedurl, k.ShortPath),
+			})
+		}
+	}
 	return
 }

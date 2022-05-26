@@ -29,6 +29,15 @@ func (hook *StoreDBinPostgreSQL) Put(k string, v model.DataURL) error {
 	}
 	return err
 }
+func (hook *StoreDBinPostgreSQL) PutBatch(k string, v []model.DataURL) error {
+
+	buff := []interface{}{v}
+	_, err := hook.pgp.NewDBConn("pgsql.insert.tb.url.batch", []string{}, hook.connStr, buff)
+	if err != nil {
+		log.Error("pgsql.insert.tb.url", err)
+	}
+	return err
+}
 
 func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 

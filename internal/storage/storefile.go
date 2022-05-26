@@ -90,6 +90,10 @@ func (hook StoreDBinFile) Close() {
 	hook.ReadURL.Close()
 }
 
+func (hook StoreDBinFile) PutBatch(k string, v []model.DataURL) error {
+	return nil
+}
+
 func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 
 	res = &StoreDBinFile{
