@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	keyPostgresSelectUrl = "pgsql.select.tb.url"
+	keyPostgresSelectURL = "pgsql.select.tb.url"
 )
 
 // connectionsHandler executes select from pg_stat_activity command and returns JSON if all is OK or nil otherwise.
