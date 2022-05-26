@@ -6,7 +6,7 @@ type Plugin struct {
 	connMgr *connManager
 }
 
-type requestHandler func(conn *postgresConn, key string, params []string) (res interface{}, err error)
+type requestHandler func(conn *postgresConn, key string, params []interface{}) (res interface{}, err error)
 
 func (p *Plugin) Start() {
 	p.connMgr = p.NewConnManager(
@@ -54,10 +54,9 @@ func whereToConnect(params []string) (u *URI, err error) {
 }
 
 // Export implements the Exporter interface.
-func (p *Plugin) NewDBConn(key string, params []string, dsnString string) (result interface{}, err error) {
+func (p *Plugin) NewDBConn(key string, params []string, dsnString string, handlerParams []interface{}) (result interface{}, err error) {
 	var (
-		handler       requestHandler
-		handlerParams []string
+		handler requestHandler
 	)
 	var connString string
 	u, err := whereToConnect(params)
@@ -74,6 +73,8 @@ func (p *Plugin) NewDBConn(key string, params []string, dsnString string) (resul
 		handler = p.pingHandler // postgres.ping[[connString]]
 	case keyPostgresCreateDdURL:
 		handler = p.CreateTbURLHandler
+	case keyPostgresSelectUrl:
+		handler = p.selectURLHandler
 	default:
 		return nil, errorUnsupportedQuery
 	}

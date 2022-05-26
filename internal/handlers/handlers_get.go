@@ -28,7 +28,6 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "OK")
 		//log.Printf("key not found")
 	}
-	fmt.Println(id)
 	defer r.Body.Close()
 	//log.Printf("Get handler")
 }
