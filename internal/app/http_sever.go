@@ -9,7 +9,6 @@ import (
 
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
-	"github.com/borisbbtest/go_home_work/internal/postgres"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -36,15 +35,12 @@ func (hook *serviceShortURL) Start() (err error) {
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
-	var pgp postgres.Plugin
-	pgp.Start()
-	t, w := pgp.NewDBConn("pgsql.create.db.url", []string{}, hook.wrapp.ServerConf.DataBaseDSN)
-	log.Error("--- >", w, "---- ", t)
-	pgp.Stop()
-
-	hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
+	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
 	if err != nil {
-		log.Error(err)
+		hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	defer hook.wrapp.Storage.Close()
 
