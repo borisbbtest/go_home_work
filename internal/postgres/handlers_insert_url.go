@@ -21,14 +21,16 @@ func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []inter
 		ON CONFLICT ("URL") DO NOTHING
 		RETURNING "URL"
 	)
-    SELECT "ShortPath"  FROM  "storeurl"  WHERE  "URL"  = $1;`
+	SELECT NULL AS result
+	WHERE EXISTS (SELECT 1 FROM cte)
+	UNION ALL
+    SELECT "ShortPath"  FROM  "storeurl"  WHERE  "URL"  = $2;`
 
 	err = conn.postgresPool.QueryRow(context.Background(), query, params[0], params[1], params[2], params[3], params[4]).Scan(&short_url)
 	log.Info("---->", short_url, "<---")
 	if err != nil {
-		log.Error(err)
 		return nil, err
 	}
 
-	return nil, nil
+	return short_url, nil
 }

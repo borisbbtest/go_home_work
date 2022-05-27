@@ -190,7 +190,7 @@ func TestStatusHandler(t *testing.T) {
 					BaseURL:    "http://localhost:8080",
 				},
 			}
-			th.Storage, _ = &storage.NewFileStorage("")
+			th.Storage, _ = storage.NewFileStorage("")
 
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
