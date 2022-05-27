@@ -77,6 +77,8 @@ func (p *Plugin) NewDBConn(key string, params []string, dsnString string, handle
 		handler = p.selectURLHandler
 	case keyPostgresInsertsBatch:
 		handler = p.insertBatchURLHandler
+	case keyPostgresSelectURLtoURL:
+		handler = p.selectURLtoURLHandler
 	default:
 		return nil, errorUnsupportedQuery
 	}

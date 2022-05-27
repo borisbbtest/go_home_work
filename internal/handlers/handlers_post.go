@@ -137,6 +137,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	tmp, _ := tools.GetID()
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
+
 	hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	resp := model.ResponseURLShort{

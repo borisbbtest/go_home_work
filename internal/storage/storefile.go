@@ -44,7 +44,7 @@ func (hook StoreDBinFile) RestoreDdBackupURL() {
 
 }
 
-func (hook StoreDBinFile) Put(k string, v model.DataURL) error {
+func (hook StoreDBinFile) Put(k string, v model.DataURL) (string, error) {
 	hook.DB[k] = v
 	hook.ListUser[v.UserID] = append(hook.ListUser[v.UserID], v.ShortPath)
 	if hook.WriteURL != nil {
@@ -55,7 +55,7 @@ func (hook StoreDBinFile) Put(k string, v model.DataURL) error {
 
 		}
 	}
-	return nil
+	return "", nil
 }
 
 func (hook StoreDBinFile) Get(k string) (model.DataURL, error) {

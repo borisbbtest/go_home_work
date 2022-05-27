@@ -15,7 +15,7 @@ type StoreDBLocal struct {
 	ListUser map[string][]string
 }
 type Storage interface {
-	Put(k string, v model.DataURL) error
+	Put(k string, v model.DataURL) (string, error)
 	Get(k string) (model.DataURL, error)
 	GetAll(k string, dom string) ([]model.ResponseURL, error)
 	PutBatch(k string, v []model.DataURL) error
