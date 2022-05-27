@@ -26,7 +26,7 @@ func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []inter
 	UNION ALL
     SELECT "ShortPath"  FROM  "storeurl"  WHERE  "URL"  = $2;`
 
-	err = conn.postgresPool.QueryRow(context.Background(), query, params[0], params[1], params[2], params[3], params[4]).Scan(&short_url)
+	err = conn.postgresPool.QueryRow(context.Background(), query, params[0], params[1], params[2], params[3], params[4]).Scan(&shortURL)
 	log.Info("---->", shortURL, "<---")
 	if err != nil {
 		return nil, err
