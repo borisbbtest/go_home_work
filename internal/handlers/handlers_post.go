@@ -88,7 +88,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	hashcode.UserID = v
 
 	w.WriteHeader(http.StatusCreated)
-	if v, err := hook.Storage.Put(hashcode.ShortPath, hashcode); err == nil {
+	if v, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(v) > 1 {
 		hashcode.ShortPath = v
 		w.WriteHeader(http.StatusConflict)
 	} else {
@@ -143,7 +143,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
 
-	if v, err := hook.Storage.Put(hashcode.ShortPath, hashcode); err == nil {
+	if v, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(v) > 1 {
 		hashcode.ShortPath = v
 		w.WriteHeader(http.StatusConflict)
 	} else {
