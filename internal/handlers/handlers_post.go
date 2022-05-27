@@ -81,19 +81,18 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	log.Info("PostHandler ", string(bytes))
 
 	hashcode, _ := storage.ParserDataURL(string(bytes))
-	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
 	tmp, _ := tools.GetID()
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
 
-	w.WriteHeader(http.StatusCreated)
-	if v, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(v) > 1 {
-		hashcode.ShortPath = v
+	if gl, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(gl) > 1 {
+		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
+	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	fmt.Fprint(w, resp)
@@ -143,8 +142,8 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
 
-	if v, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(v) > 1 {
-		hashcode.ShortPath = v
+	if gl, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(gl) > 1 {
+		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
