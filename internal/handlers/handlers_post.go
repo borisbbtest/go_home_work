@@ -86,6 +86,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	if gl, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(gl) > 1 {
 		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
@@ -94,7 +95,6 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	resp := fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath)
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	fmt.Fprint(w, resp)
 
 	log.Println("Post handler")
@@ -142,6 +142,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
 	hashcode.UserID = v
 
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if gl, _ := hook.Storage.Put(hashcode.ShortPath, hashcode); len(gl) > 1 {
 		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
@@ -153,7 +154,6 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(resp)
 
 	log.Println("Post handler")
