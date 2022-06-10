@@ -25,7 +25,6 @@ func (hook *StoreDBinPostgreSQL) Put(k string, v model.DataURL) (string, error) 
 	buff := []interface{}{v.Port, v.URL, v.Path, v.ShortPath, v.UserID}
 	res, err := hook.pgp.NewDBConn("pgsql.insert.tb.url", []string{}, hook.connStr, buff)
 	if err != nil {
-		log.Error("pgsql.insert.tb.url", err)
 		return "", err
 	}
 	return res.(string), err
