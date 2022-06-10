@@ -43,16 +43,16 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 		//log.Printf("Get handler")
 	}
 
-	j, err := hook.Storage.GetAll(v, hook.ServerConf.BaseURL)
+	response_short_url, err := hook.Storage.GetAll(v, hook.ServerConf.BaseURL)
 
-	if err != nil || len(j) <= 0 {
+	if err != nil || len(response_short_url) <= 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(204)
 		fmt.Fprint(w, "No Content")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(j)
+	json.NewEncoder(w).Encode(response_short_url)
 
 	//log.Printf("Get handler")
 }

@@ -12,7 +12,7 @@ const (
 func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	var err error
-	var shortURL string
+	var short_url string
 	query := `
 	WITH cte AS (
 		INSERT INTO public."storeurl"(
@@ -26,11 +26,11 @@ func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []inter
 	UNION ALL
     SELECT "ShortPath"  FROM  "storeurl"  WHERE  "URL"  = $2;`
 
-	err = conn.postgresPool.QueryRow(context.Background(), query, params[0], params[1], params[2], params[3], params[4]).Scan(&shortURL)
-	log.Info("---->", shortURL, "<---")
+	err = conn.postgresPool.QueryRow(context.Background(), query, params[0], params[1], params[2], params[3], params[4]).Scan(&short_url)
+	log.Info("---->", short_url, "<---")
 	if err != nil {
 		return nil, err
 	}
 
-	return shortURL, nil
+	return short_url, nil
 }
