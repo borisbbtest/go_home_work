@@ -7,12 +7,10 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/storage"
-	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,6 +19,7 @@ var log = logrus.WithField("context", "service_short_url")
 type WrapperHandler struct {
 	ServerConf *config.ServiceShortURLConfig
 	Storage    storage.Storage
+	UserID     string
 }
 
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,9 +47,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 
 	hashcode, _ := storage.ParserDataURL(string(bytes))
 
-	tmp, _ := tools.GetID()
-	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
-	hashcode.UserID = v
+	hashcode.UserID = hook.UserID
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
@@ -109,9 +106,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	tmp, _ := tools.GetID()
-	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
-	hashcode.UserID = v
+	hashcode.UserID = hook.UserID
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -168,15 +163,12 @@ func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.
 		return
 	}
 
-	tmp, _ := tools.GetID()
-	v, _ := tools.AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
-
-	res1, res2 := storage.ParserDataURLBatch(&m, hook.ServerConf.BaseURL, v)
+	res1, res2 := storage.ParserDataURLBatch(&m, hook.ServerConf.BaseURL, hook.UserID)
 	if err != nil {
 		http.Error(w, "request body is not valid URL", 400)
 		return
 	}
-	hook.Storage.PutBatch(v, res1)
+	hook.Storage.PutBatch(hook.UserID, res1)
 
 	// resp := model.ResponseURLShort{
 	// 	ResNewURL: fmt.Sprintf("%s/%s", hook.ServerConf.BaseURL, hashcode.ShortPath),

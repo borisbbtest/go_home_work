@@ -1,13 +1,12 @@
-package tools
+package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 )
-
-var log = logrus.WithField("context", "service_short_url")
 
 func AddCookie(w http.ResponseWriter, r *http.Request, name, value string, ttl time.Duration) (res string, err error) {
 	ck, err := r.Cookie(name)
@@ -27,12 +26,10 @@ func AddCookie(w http.ResponseWriter, r *http.Request, name, value string, ttl t
 	return value, err
 }
 
-func GetCookie(r *http.Request, name string) (value string, err error) {
-	cooke, err := r.Cookie(name)
-	if err != nil {
-		log.Error("Cant find cookie : set cooke")
-		return
-	}
-	value = cooke.Value
-	return
+func (hook *WrapperHandler) MidSetCookie(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tmp, _ := tools.GetID()
+		hook.UserID, _ = AddCookie(w, r, "ShortURL", fmt.Sprintf("%x", tmp), 30*time.Minute)
+		next.ServeHTTP(w, r)
+	})
 }

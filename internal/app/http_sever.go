@@ -9,7 +9,6 @@ import (
 
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
-	mid "github.com/borisbbtest/go_home_work/internal/middleware"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -48,7 +47,8 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
-	r.Use(mid.GzipHandle)
+	r.Use(hook.wrapp.GzipHandle)
+	r.Use(hook.wrapp.MidSetCookie)
 	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 
