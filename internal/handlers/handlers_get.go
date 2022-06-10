@@ -34,7 +34,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Request) {
 
-	if len(hook.UserID) > 1 {
+	if len(hook.UserID) == 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(204)
 		fmt.Fprint(w, "No Content")
