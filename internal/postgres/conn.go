@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"net"
 	"strconv"
 	"sync"
 	"time"
@@ -37,7 +36,6 @@ func (p *Plugin) NewConnManager(keepAlive, timeout time.Duration) *connManager {
 		controlSink: make(chan interface{}),
 	}
 
-	// Repeatedly check for unused connections and close them
 	go func() {
 		ticker := time.NewTicker(10 * time.Second)
 		for {
@@ -67,13 +65,13 @@ func (p *postgresConn) finalize() (err error) {
 	if err != nil {
 		return sanitizeError(err.Error(), p.connString)
 	}
-	config.ConnConfig.DialFunc = func(ctx context.Context, network, addr string) (net.Conn, error) {
-		d := net.Dialer{}
-		newCtx, cancel := context.WithTimeout(context.Background(), p.timeout)
-		defer cancel()
-		conn, err := d.DialContext(newCtx, network, addr)
-		return conn, err
-	}
+	// config.ConnConfig.DialFunc = func(ctx context.Context, network, addr string) (net.Conn, error) {
+	// 	d := net.Dialer{}
+	// 	newCtx, cancel := context.WithTimeout(context.Background(), p.timeout)
+	// 	defer cancel()
+	// 	conn, err := d.DialContext(newCtx, network, addr)
+	// 	return conn, err
+	// }
 
 	newConn, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
