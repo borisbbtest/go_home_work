@@ -34,8 +34,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Request) {
 
-	v, status := tools.GetCookie(r, "ShortURL")
-	if status != nil {
+	if len(hook.UserID) > 1 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(204)
 		fmt.Fprint(w, "No Content")
@@ -43,7 +42,7 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 		//log.Printf("Get handler")
 	}
 
-	responseShortURL, err := hook.Storage.GetAll(v, hook.ServerConf.BaseURL)
+	responseShortURL, err := hook.Storage.GetAll(hook.UserID, hook.ServerConf.BaseURL)
 
 	if err != nil || len(responseShortURL) <= 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
