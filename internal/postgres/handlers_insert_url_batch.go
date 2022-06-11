@@ -17,8 +17,8 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 
 	ft := params[0].([]model.DataURL)
 	query := `INSERT INTO public."storeurl"(
-		"Port", "URL", "Path", "ShortPath", "UserID", "CorrelationId")
-		VALUES ($1, $2, $3, $4, $5, $6);`
+		"Port", "URL", "Path", "ShortPath", "UserID", "CorrelationId","StatusActive")
+		VALUES ($1, $2, $3, $4, $5, $6,1);`
 
 	for _, v := range ft {
 		_, err = conn.postgresPool.Exec(context.Background(), query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationID)
