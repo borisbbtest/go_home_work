@@ -18,7 +18,7 @@ func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []inter
 		INSERT INTO public."storeurl"(
 		"Port", "URL", "Path", "ShortPath", "UserID","StatusActive")
 		VALUES ($1, $2, $3, $4, $5,1)
-		ON CONFLICT ("URL") DO NOTHING
+		ON CONFLICT ("URL","StatusActive") DO NOTHING
 		RETURNING "URL"
 	)
 	SELECT NULL AS result
