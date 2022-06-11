@@ -19,7 +19,7 @@ func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []int
 						"ShortPath" "text" NOT NULL,
 						"UserID" "text",
 						"CorrelationId" "text",
-						"StatusActive" "INTEGER" DEFAULT "0" NOT NULL,
+						"StatusActive"  integer NOT NULL DEFAULT 1,
 						CONSTRAINT "storeurl_pkey" PRIMARY KEY ("URL")
 					)
 
