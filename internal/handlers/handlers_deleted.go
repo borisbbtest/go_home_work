@@ -34,6 +34,7 @@ func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Req
 	log.Info("DeletedHandler -> ", string(bytesBody))
 	log.Info(shortURLs)
 
+	w.WriteHeader(http.StatusAccepted)
 	log.Println("Deleted handler")
 	defer r.Body.Close()
 }
