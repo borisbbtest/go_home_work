@@ -57,7 +57,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
 	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
-	r.Delete("/api/user/urls", hook.wrapp.GetHandlerCooke)
+	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
 	r.Get("/", hook.wrapp.GetHandler)
 	r.Get("/ping", hook.wrapp.GetHandlerPing)
 
