@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"io"
 	"net/http"
 )
@@ -22,12 +23,16 @@ func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Req
 		reader = r.Body
 	}
 
-	bytes, err := io.ReadAll(reader)
+	bytesBody, err := io.ReadAll(reader)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Info("DeletedHandler -> ", string(bytes))
+	var shortURLs []string
+	json.Unmarshal(bytesBody, &shortURLs)
+
+	log.Info("DeletedHandler -> ", string(bytesBody))
+	log.Info(shortURLs)
 
 	log.Println("Deleted handler")
 	defer r.Body.Close()
