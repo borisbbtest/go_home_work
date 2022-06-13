@@ -35,23 +35,30 @@ func (hook *serviceShortURL) Start() (err error) {
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
-	hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
+	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
 	if err != nil {
-		log.Error(err)
+		hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
-	//r.Use(hook.wrapp.GzipHandle)
-	r.Use(middleware.Compress(5, "gzip"))
+	r.Use(hook.wrapp.GzipHandle)
+	r.Use(hook.wrapp.MidSetCookie)
+	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 
 	r.Get("/{id}", hook.wrapp.GetHandler)
 	r.Post("/", hook.wrapp.PostHandler)
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
+	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
+	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
 	r.Get("/", hook.wrapp.GetHandler)
+	r.Get("/ping", hook.wrapp.GetHandlerPing)
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "web"))
