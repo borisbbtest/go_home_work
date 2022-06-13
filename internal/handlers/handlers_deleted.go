@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/borisbbtest/go_home_work/internal/model"
 )
 
 func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Request) {
@@ -30,9 +32,14 @@ func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Req
 
 	var shortURLs []string
 	json.Unmarshal(bytesBody, &shortURLs)
-	// for x := range shortURLs {
-
-	// }
+	go func() {
+		buff := make([]model.DataURL, 0, len(shortURLs))
+		for _, str := range shortURLs {
+			buff = append(buff, model.DataURL{ShortPath: str,
+				StatusActive: 2})
+		}
+		hook.Storage.DeletedURLBatch(hook.UserID, buff)
+	}()
 
 	log.Info("DeletedHandler -> ")
 	log.Info(shortURLs)
