@@ -18,7 +18,7 @@ func (p *Plugin) DeletedShortURLBatchURLHandler(conn *postgresConn, key string, 
 	ft := params[0].([]model.DataURL)
 	query := `UPDATE  public."storeurl"
 	          SET "StatusActive"= 2
-			  WHERE ShortPath = $1;`
+			  WHERE "ShortPath" = $1;`
 
 	for _, v := range ft {
 		_, err = conn.postgresPool.Exec(context.Background(), query, v.ShortPath)
