@@ -19,6 +19,7 @@ type Storage interface {
 	Get(k string) (model.DataURL, error)
 	GetAll(k string, dom string) ([]model.ResponseURL, error)
 	PutBatch(k string, v []model.DataURL) error
+	DeletedURLBatch(k string, v []model.DataURL) error
 	Close()
 }
 

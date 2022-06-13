@@ -30,6 +30,9 @@ func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Req
 
 	var shortURLs []string
 	json.Unmarshal(bytesBody, &shortURLs)
+	// for x := range shortURLs {
+
+	// }
 
 	log.Info("DeletedHandler -> ")
 	log.Info(shortURLs)

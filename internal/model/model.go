@@ -26,4 +26,5 @@ type DataURL struct {
 	ShortPath     string `json:"ShortPath"`
 	UserID        string `json:"UserID"`
 	CorrelationID string `json:"correlation_id"`
+	StatusActive  int
 }

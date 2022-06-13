@@ -39,6 +39,16 @@ func (hook *StoreDBinPostgreSQL) PutBatch(k string, v []model.DataURL) error {
 	return err
 }
 
+func (hook *StoreDBinPostgreSQL) DeletedURLBatch(k string, v []model.DataURL) error {
+
+	buff := []interface{}{v}
+	_, err := hook.pgp.NewDBConn("pgsql.deleted.tb.short.url.batch", []string{}, hook.connStr, buff)
+	if err != nil {
+		log.Error("pgsql.deleted.tb.short.url.batch", err)
+	}
+	return err
+}
+
 func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 
 	buff := []interface{}{k}
