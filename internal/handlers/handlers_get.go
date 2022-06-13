@@ -18,6 +18,12 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info("ID Go to", id)
 	value, status := hook.Storage.Get(id)
 	if status == nil {
+		if value.StatusActive == 0 {
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.WriteHeader(http.StatusGone)
+			fmt.Fprint(w, "Short url deleted")
+			return
+		}
 		url := value.URL
 		w.Header().Set("Location", url)
 		w.WriteHeader(307)
