@@ -32,6 +32,7 @@ func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Req
 
 	var shortURLs []string
 	json.Unmarshal(bytesBody, &shortURLs)
+	//пока формально Нет времени подумать едином канале
 	go func() {
 		buff := make([]model.DataURL, 0, len(shortURLs))
 		for _, str := range shortURLs {
