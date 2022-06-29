@@ -50,7 +50,6 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	hashcode.UserID = hook.UserID
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
 	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
 
 	if err != nil {
