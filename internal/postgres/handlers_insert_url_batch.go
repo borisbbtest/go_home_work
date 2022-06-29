@@ -10,7 +10,6 @@ const (
 	keyPostgresInsertsBatch = "pgsql.insert.tb.url.batch"
 )
 
-// connectionsHandler executes select from pg_stat_activity command and returns JSON if all is OK or nil otherwise.
 func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	var err error

@@ -10,7 +10,6 @@ const (
 	keyPostgresSelectURL = "pgsql.select.tb.url"
 )
 
-// connectionsHandler executes select from pg_stat_activity command and returns JSON if all is OK or nil otherwise.
 func (p *Plugin) selectURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	buff := model.DataURL{}

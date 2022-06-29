@@ -8,7 +8,6 @@ const (
 	keyPostgresCreateDdURL = "pgsql.create.tb.url"
 )
 
-// pingHandler executes 'SELECT 1 as pingOk' commands and returns pingOK if a connection is alive or postgresPingFailed otherwise.
 func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 	query := `
 				CREATE TABLE IF NOT EXISTS public."storeurl"
