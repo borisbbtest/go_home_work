@@ -56,6 +56,9 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 		log.Error("Put error ", err)
 		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
+	}
+	if len(gl) > 1 {
+
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -127,7 +130,6 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(resp)
 
 	log.Println("Post handler")
-	defer r.Body.Close()
 }
 
 func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.Request) {
@@ -177,5 +179,4 @@ func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.
 	json.NewEncoder(w).Encode(res2)
 
 	log.Println("Post handler")
-	defer r.Body.Close()
 }
