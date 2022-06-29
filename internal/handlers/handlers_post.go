@@ -116,8 +116,8 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 		log.Error("Put error ", err)
 	}
 
-	// проверяем что получили хешкод
-	if len(ShortPath) > 1 {
+	// проверяем что получили хеш сокращенного url
+	if ShortPath != "" {
 		hashcode.ShortPath = ShortPath
 		w.WriteHeader(http.StatusConflict)
 	} else {
