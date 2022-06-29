@@ -10,6 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	RecordNotFound = 2
+)
+
 type StoreDBLocal struct {
 	DBLocal  map[string]model.DataURL
 	ListUser map[string][]string

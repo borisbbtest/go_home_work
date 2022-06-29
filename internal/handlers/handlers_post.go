@@ -54,8 +54,6 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
 	if err != nil {
 		log.Error("Put error ", err)
-	}
-	if len(gl) > 1 {
 		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
 	} else {
