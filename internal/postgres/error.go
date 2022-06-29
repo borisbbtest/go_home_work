@@ -31,7 +31,6 @@ func formatError(errText string) string {
 	if errText[len(errText)-1:] != "." {
 		errText = errText + "."
 	}
-
 	return cases.Title(language.Und, cases.NoLower).String(errText)
 }
 
