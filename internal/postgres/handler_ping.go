@@ -18,7 +18,7 @@ func (p *Plugin) pingHandler(conn *postgresConn, key string, params []interface{
 
 	_ = conn.postgresPool.QueryRow(context.Background(), fmt.Sprintf("SELECT %d as pingOk", postgresPingOk)).Scan(&pingOK)
 	if pingOK != postgresPingOk {
-		log.Error(string(errorPostgresPing))
+		log.Error(errorPostgresPing)
 		return postgresPingFailed, nil
 	}
 
