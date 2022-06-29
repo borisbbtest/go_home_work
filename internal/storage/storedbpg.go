@@ -14,7 +14,7 @@ func NewPostgreSQLStorage(connStr string) (res *StoreDBinPostgreSQL, err error) 
 	res = &StoreDBinPostgreSQL{}
 	res.connStr = connStr
 	res.pgp.Start()
-	_, err = res.pgp.NewDBConn("pgsql.create.tb.url", []string{}, connStr, []interface{}{})
+	err = res.pgp.NewDBConn("pgsql.create.tb.url", []string{}, connStr, []interface{}{})
 	if err != nil {
 		log.Error("pgsql.create.tb.url", err)
 	}

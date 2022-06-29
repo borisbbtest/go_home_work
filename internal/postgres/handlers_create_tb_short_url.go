@@ -37,7 +37,7 @@ func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []int
 			`
 
 	if _, err := conn.postgresPool.Exec(context.Background(), query); err != nil {
-		return 0, err
+		return "Table didn't create ", err
 	}
-	return 1, nil
+	return "Table created ", nil
 }
