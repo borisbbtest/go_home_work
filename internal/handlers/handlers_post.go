@@ -111,13 +111,14 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
+	ShortPath, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
 	if err != nil {
 		log.Error("Put error ", err)
 	}
 
-	if len(gl) > 1 {
-		hashcode.ShortPath = gl
+	// проверяем что получили хешкод
+	if len(ShortPath) > 1 {
+		hashcode.ShortPath = ShortPath
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
