@@ -94,6 +94,10 @@ func (hook StoreDBinFile) PutBatch(k string, v []model.DataURL) error {
 	return nil
 }
 
+func (hook StoreDBinFile) DeletedURLBatch(k string, v []model.DataURL) error {
+	return nil
+}
+
 func NewFileStorage(filename string) (res *StoreDBinFile, err error) {
 
 	res = &StoreDBinFile{

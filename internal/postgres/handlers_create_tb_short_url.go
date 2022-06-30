@@ -8,7 +8,6 @@ const (
 	keyPostgresCreateDdURL = "pgsql.create.tb.url"
 )
 
-// pingHandler executes 'SELECT 1 as pingOk' commands and returns pingOK if a connection is alive or postgresPingFailed otherwise.
 func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 	query := `
 				CREATE TABLE IF NOT EXISTS public."storeurl"
@@ -19,7 +18,8 @@ func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []int
 						"ShortPath" "text" NOT NULL,
 						"UserID" "text",
 						"CorrelationId" "text",
-						CONSTRAINT "storeurl_pkey" PRIMARY KEY ("URL")
+						"StatusActive"  integer NOT NULL DEFAULT 1,
+						CONSTRAINT "storeurl_pkey" PRIMARY KEY ("URL","StatusActive")
 					)
 
 					TABLESPACE pg_default;
@@ -36,7 +36,7 @@ func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []int
 			`
 
 	if _, err := conn.postgresPool.Exec(context.Background(), query); err != nil {
-		return 0, err
+		return "Table didn't create ", err
 	}
-	return 1, nil
+	return "Table created ", nil
 }

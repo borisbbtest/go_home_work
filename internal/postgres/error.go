@@ -3,6 +3,9 @@ package postgres
 import (
 	"fmt"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type Error string
@@ -28,8 +31,7 @@ func formatError(errText string) string {
 	if errText[len(errText)-1:] != "." {
 		errText = errText + "."
 	}
-
-	return strings.Title(errText)
+	return cases.Title(language.Und, cases.NoLower).String(errText)
 }
 
 func sanitizeError(errText, connString string) (err error) {
