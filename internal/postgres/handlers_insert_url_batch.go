@@ -15,6 +15,9 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 
 	ft := params[0].([]model.DataURL)
 
+	ctx := context.Background()
+
+	tx, err := conn.postgresPool.Begin(ctx)
 	b := &pgx.Batch{}
 
 	for _, v := range ft {
@@ -23,7 +26,8 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 			VALUES ($1, $2, $3, $4, $5, $6, 1);`
 		b.Queue(query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationID)
 	}
-	batchResults := conn.postgresPool.SendBatch(context.Background(), b)
+
+	batchResults := tx.SendBatch(ctx, b)
 
 	var qerr error
 	var rows pgx.Rows
@@ -31,6 +35,7 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 		rows, qerr = batchResults.Query()
 		rows.Close()
 	}
+	tx.Commit(ctx)
 
-	return nil, qerr
+	return nil, err
 }
