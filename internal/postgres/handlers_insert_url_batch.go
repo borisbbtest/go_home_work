@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/jackc/pgx/v4"
@@ -18,9 +17,6 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 
 	ft := params[0].([]model.DataURL)
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
-	defer cancelFunc()
-
 	b := &pgx.Batch{}
 
 	for _, v := range ft {
@@ -29,10 +25,13 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 			VALUES ($1, $2, $3, $4, $5, $6, 1);`
 		b.Queue(query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationID)
 	}
-	conn.postgresPool.SendBatch(ctx, b)
+	batchResults := conn.postgresPool.SendBatch(context.Background(), b)
 
-	if err != nil {
-		log.Error(err)
+	var qerr error
+	var rows pgx.Rows
+	for qerr == nil {
+		rows, qerr = batchResults.Query()
+		rows.Close()
 	}
 
 	return nil, nil
