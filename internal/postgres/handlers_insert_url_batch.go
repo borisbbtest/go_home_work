@@ -13,8 +13,6 @@ const (
 
 func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
-	var err error
-
 	ft := params[0].([]model.DataURL)
 
 	b := &pgx.Batch{}
@@ -34,5 +32,5 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 		rows.Close()
 	}
 
-	return nil, nil
+	return nil, qerr
 }
