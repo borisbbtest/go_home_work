@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/borisbbtest/go_home_work/internal/model"
+	"github.com/jackc/pgx/v4"
 )
 
 const (
@@ -12,19 +13,29 @@ const (
 
 func (p *Plugin) DeletedShortURLBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
-	var err error
-
 	ft := params[0].([]model.DataURL)
-	query := `UPDATE  public."storeurl"
-	          SET "StatusActive"= 2
-			  WHERE "ShortPath" = $1;`
+
+	ctx := context.Background()
+
+	tx, err := conn.postgresPool.Begin(ctx)
+	b := &pgx.Batch{}
 
 	for _, v := range ft {
-		_, err = conn.postgresPool.Exec(context.Background(), query, v.ShortPath)
-		if err != nil {
-			log.Error(err)
-		}
+		query := `UPDATE  public."storeurl"
+		SET "StatusActive"= 2
+		WHERE "ShortPath" = $1;`
+		b.Queue(query, v.ShortPath)
 	}
 
-	return nil, nil
+	batchResults := tx.SendBatch(ctx, b)
+
+	var qerr error
+	var rows pgx.Rows
+	for qerr == nil {
+		rows, qerr = batchResults.Query()
+		rows.Close()
+	}
+	tx.Commit(ctx)
+
+	return nil, err
 }
