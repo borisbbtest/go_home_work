@@ -10,6 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	RecordNotFound = 2
+)
+
 type StoreDBLocal struct {
 	DBLocal  map[string]model.DataURL
 	ListUser map[string][]string
@@ -19,6 +23,7 @@ type Storage interface {
 	Get(k string) (model.DataURL, error)
 	GetAll(k string, dom string) ([]model.ResponseURL, error)
 	PutBatch(k string, v []model.DataURL) error
+	DeletedURLBatch(k string, v []model.DataURL) error
 	Close()
 }
 

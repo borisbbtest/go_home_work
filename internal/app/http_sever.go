@@ -52,13 +52,14 @@ func (hook *serviceShortURL) Start() (err error) {
 	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 
+	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
+	r.Get("/", hook.wrapp.GetHandler)
+	r.Get("/ping", hook.wrapp.GetHandlerPing)
 	r.Get("/{id}", hook.wrapp.GetHandler)
 	r.Post("/", hook.wrapp.PostHandler)
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
-	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
-	r.Get("/", hook.wrapp.GetHandler)
-	r.Get("/ping", hook.wrapp.GetHandlerPing)
+	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "web"))

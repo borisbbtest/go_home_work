@@ -10,12 +10,11 @@ import (
 
 func AddCookie(w http.ResponseWriter, r *http.Request, name, value string, ttl time.Duration) (res string, err error) {
 	ck, err := r.Cookie(name)
-	if err != nil {
-		log.Info("Cant find cookie : set cooke")
-	} else {
+	if err == nil {
 		res = ck.Value
 		return
 	}
+	log.Info("Cant find cookie : set cooke")
 	expire := time.Now().Add(ttl)
 	cookie := http.Cookie{
 		Name:    name,

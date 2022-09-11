@@ -50,11 +50,12 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	hashcode.UserID = hook.UserID
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
 	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
+
 	if err != nil {
 		log.Error("Put error ", err)
 	}
+
 	if len(gl) > 1 {
 		hashcode.ShortPath = gl
 		w.WriteHeader(http.StatusConflict)
@@ -110,13 +111,14 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
+	ShortPath, err := hook.Storage.Put(hashcode.ShortPath, hashcode)
 	if err != nil {
 		log.Error("Put error ", err)
 	}
 
-	if len(gl) > 1 {
-		hashcode.ShortPath = gl
+	// проверяем что получили хеш сокращенного url
+	if ShortPath != "" {
+		hashcode.ShortPath = ShortPath
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
@@ -129,7 +131,6 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(resp)
 
 	log.Println("Post handler")
-	defer r.Body.Close()
 }
 
 func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.Request) {
@@ -179,5 +180,4 @@ func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.
 	json.NewEncoder(w).Encode(res2)
 
 	log.Println("Post handler")
-	defer r.Body.Close()
 }

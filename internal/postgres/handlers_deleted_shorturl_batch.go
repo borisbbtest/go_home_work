@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	keyPostgresInsertsBatch = "pgsql.insert.tb.url.batch"
+	keyPostgresDeletedShortURLBatch = "pgsql.deleted.tb.short.url.batch"
 )
 
-func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
+func (p *Plugin) DeletedShortURLBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	ft := params[0].([]model.DataURL)
 
@@ -21,10 +21,10 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 	b := &pgx.Batch{}
 
 	for _, v := range ft {
-		query := `INSERT INTO public."storeurl"(
-			"Port", "URL", "Path", "ShortPath", "UserID", "CorrelationId","StatusActive")
-			VALUES ($1, $2, $3, $4, $5, $6, 1);`
-		b.Queue(query, v.Port, v.URL, v.Path, v.ShortPath, v.UserID, v.CorrelationID)
+		query := `UPDATE  public."storeurl"
+		SET "StatusActive"= 2
+		WHERE "ShortPath" = $1;`
+		b.Queue(query, v.ShortPath)
 	}
 
 	batchResults := tx.SendBatch(ctx, b)
