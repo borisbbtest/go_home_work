@@ -22,6 +22,7 @@ type serviceShortURL struct {
 	wrapp handlers.WrapperHandler
 }
 
+// Структура так так
 func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 	return &serviceShortURL{
 		wrapp: handlers.WrapperHandler{

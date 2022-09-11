@@ -9,6 +9,7 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/model"
 )
 
+// Хедлер удаления
 func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Request) {
 
 	var reader io.Reader
