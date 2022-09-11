@@ -1,8 +1,10 @@
 package app
 
 import (
+	"expvar"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"time"
@@ -27,6 +29,20 @@ func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 			ServerConf: cfg,
 		},
 	}
+}
+
+func expVars(w http.ResponseWriter, r *http.Request) {
+	first := true
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "{\n")
+	expvar.Do(func(kv expvar.KeyValue) {
+		if !first {
+			fmt.Fprintf(w, ",\n")
+		}
+		first = false
+		fmt.Fprintf(w, "%q: %s", kv.Key, kv.Value)
+	})
+	fmt.Fprintf(w, "\n}\n")
 }
 
 func (hook *serviceShortURL) Start() (err error) {
@@ -61,6 +77,20 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
 	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
 
+	r.HandleFunc("/pprof/*", pprof.Index)
+	r.HandleFunc("/pprof/cmdline", pprof.Cmdline)
+	r.HandleFunc("/pprof/profile", pprof.Profile)
+	r.HandleFunc("/pprof/symbol", pprof.Symbol)
+	r.HandleFunc("/pprof/trace", pprof.Trace)
+	r.HandleFunc("/vars", expVars)
+
+	r.Handle("/pprof/goroutine", pprof.Handler("goroutine"))
+	r.Handle("/pprof/threadcreate", pprof.Handler("threadcreate"))
+	r.Handle("/pprof/mutex", pprof.Handler("mutex"))
+	r.Handle("/pprof/heap", pprof.Handler("heap"))
+	r.Handle("/pprof/block", pprof.Handler("block"))
+	r.Handle("/pprof/allocs", pprof.Handler("allocs"))
+
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "web"))
 	hook.wrapp.FileServer(r, "/form", filesDir)
@@ -68,8 +98,8 @@ func (hook *serviceShortURL) Start() (err error) {
 	server := &http.Server{
 		Addr:         hook.wrapp.ServerConf.ServerAddress,
 		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  40 * time.Second,
+		WriteTimeout: 40 * time.Second,
 	}
 
 	err = server.ListenAndServe()
