@@ -51,7 +51,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Use(hook.wrapp.MidSetCookie)
 	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
-
+	//yes
 	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
 	r.Get("/", hook.wrapp.GetHandler)
 	r.Get("/ping", hook.wrapp.GetHandlerPing)
