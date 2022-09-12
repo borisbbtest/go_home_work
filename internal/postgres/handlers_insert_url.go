@@ -8,6 +8,7 @@ const (
 	keyPostgresInserts = "pgsql.insert.tb.url"
 )
 
+// Добавления URL в БД
 func (p *Plugin) insertURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	var err error

@@ -10,6 +10,7 @@ const (
 	keyPostgresSelectURLtoURL = "pgsql.select.tb.url.then"
 )
 
+// Запрос на вывод из БД  по users
 func (p *Plugin) selectURLtoURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	buff := model.DataURL{}

@@ -8,6 +8,7 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/tools"
 )
 
+// AddCookie добавим мидлу
 func AddCookie(w http.ResponseWriter, r *http.Request, name, value string, ttl time.Duration) (res string, err error) {
 	ck, err := r.Cookie(name)
 	if err == nil {

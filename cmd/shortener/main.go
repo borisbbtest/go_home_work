@@ -11,7 +11,7 @@ import (
 var log = logrus.WithField("context", "main")
 
 // Использую в  vsc
-// "go.formatTool": "gofmt"
+// main "go.formatTool": "gofmt"
 func main() {
 	logrus.SetOutput(os.Stdout)
 	logrus.SetLevel(logrus.DebugLevel)

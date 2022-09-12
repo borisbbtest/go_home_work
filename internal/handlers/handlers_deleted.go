@@ -12,6 +12,7 @@ import (
 // Хедлер удаления
 func (hook *WrapperHandler) DeleteURLHandlers(w http.ResponseWriter, r *http.Request) {
 
+	// nr
 	var reader io.Reader
 
 	if r.Header.Get(`Content-Encoding`) == `gzip` {

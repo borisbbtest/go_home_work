@@ -6,6 +6,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Пинг  к БД
 func PingDataBase(psqlInfo string) (bool, error) {
 
 	db, err := sql.Open("postgres", psqlInfo)

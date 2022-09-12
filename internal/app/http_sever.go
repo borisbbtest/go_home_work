@@ -54,7 +54,6 @@ func (hook *serviceShortURL) Start() (err error) {
 	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 	//yes
-
 	r.HandleFunc("/pprof/*", pprof.Index)
 	r.HandleFunc("/pprof/cmdline", pprof.Cmdline)
 	r.HandleFunc("/pprof/profile", pprof.Profile)
@@ -84,7 +83,7 @@ func (hook *serviceShortURL) Start() (err error) {
 		Addr:         hook.wrapp.ServerConf.ServerAddress,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		WriteTimeout: 40 * time.Second,
 	}
 
 	err = server.ListenAndServe()

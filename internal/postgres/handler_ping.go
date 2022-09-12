@@ -1,3 +1,5 @@
+// Модуль отвечает за пол соединений к БД postgreSQL
+
 package postgres
 
 import (

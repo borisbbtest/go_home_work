@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetHandler Запрос короткого URL
 func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
@@ -39,6 +40,7 @@ func (hook *WrapperHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	//log.Printf("Get handler")
 }
 
+// GetHandlerCooke Настройка кукизов
 func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Request) {
 
 	if len(hook.UserID) == 0 {
@@ -63,6 +65,7 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 	//log.Printf("Get handler")
 }
 
+// GetHandlerPing пинголятор
 func (hook *WrapperHandler) GetHandlerPing(w http.ResponseWriter, r *http.Request) {
 
 	_, status := tools.PingDataBase(hook.ServerConf.DataBaseDSN)

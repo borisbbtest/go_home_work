@@ -22,6 +22,7 @@ type WrapperHandler struct {
 	UserID     string
 }
 
+// PostHandler делает полезные дела ))
 func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var reader io.Reader
@@ -70,6 +71,7 @@ func (hook *WrapperHandler) PostHandler(w http.ResponseWriter, r *http.Request) 
 	defer r.Body.Close()
 }
 
+// PostJSONHandler и тут тоже
 func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	var reader io.Reader
@@ -133,6 +135,7 @@ func (hook *WrapperHandler) PostJSONHandler(w http.ResponseWriter, r *http.Reque
 	log.Println("Post handler")
 }
 
+// PostJSONHandlerBatch  осмыслено  собирает много чего
 func (hook *WrapperHandler) PostJSONHandlerBatch(w http.ResponseWriter, r *http.Request) {
 
 	var reader io.Reader
