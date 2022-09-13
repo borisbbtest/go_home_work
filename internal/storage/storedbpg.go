@@ -10,6 +10,7 @@ type StoreDBinPostgreSQL struct {
 	connStr string
 }
 
+// NewPostgreSQLStorage конструктор стораджа
 func NewPostgreSQLStorage(connStr string) (res *StoreDBinPostgreSQL, err error) {
 	res = &StoreDBinPostgreSQL{}
 	res.connStr = connStr
@@ -21,6 +22,7 @@ func NewPostgreSQLStorage(connStr string) (res *StoreDBinPostgreSQL, err error) 
 	return
 }
 
+// Put добавляем данные для урл
 func (hook *StoreDBinPostgreSQL) Put(k string, v model.DataURL) (string, error) {
 	buff := []interface{}{v.Port, v.URL, v.Path, v.ShortPath, v.UserID}
 	res, err := hook.pgp.NewDBConn("pgsql.insert.tb.url", []string{}, hook.connStr, buff)
@@ -29,6 +31,8 @@ func (hook *StoreDBinPostgreSQL) Put(k string, v model.DataURL) (string, error) 
 	}
 	return res.(string), err
 }
+
+// Put добавляем данные для урл большим объемом
 func (hook *StoreDBinPostgreSQL) PutBatch(k string, v []model.DataURL) error {
 
 	buff := []interface{}{v}
@@ -39,6 +43,7 @@ func (hook *StoreDBinPostgreSQL) PutBatch(k string, v []model.DataURL) error {
 	return err
 }
 
+// DeletedURLBatch удаляем
 func (hook *StoreDBinPostgreSQL) DeletedURLBatch(k string, v []model.DataURL) error {
 
 	buff := []interface{}{v}
@@ -49,6 +54,7 @@ func (hook *StoreDBinPostgreSQL) DeletedURLBatch(k string, v []model.DataURL) er
 	return err
 }
 
+// Get получаем данные по линку
 func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 
 	buff := []interface{}{k}
@@ -61,6 +67,7 @@ func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 	return res.(model.DataURL), nil
 }
 
+// Получаем все линки из БД у пользователя
 func (hook *StoreDBinPostgreSQL) GetAll(k string, dom string) ([]model.ResponseURL, error) {
 
 	return []model.ResponseURL{}, nil

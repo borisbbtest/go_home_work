@@ -10,6 +10,7 @@ const (
 	keyPostgresSelectURL = "pgsql.select.tb.url"
 )
 
+// ЗАпрос на предоставления короткого линка.
 func (p *Plugin) selectURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	buff := model.DataURL{}

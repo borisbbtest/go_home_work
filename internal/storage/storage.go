@@ -29,6 +29,7 @@ type Storage interface {
 
 var log = logrus.WithField("context", "service_short_url")
 
+// Обертка к запросу
 func ParserDataURL(str string) (res model.DataURL, err error) {
 
 	url, err := url.ParseRequestURI(str)
@@ -45,6 +46,8 @@ func ParserDataURL(str string) (res model.DataURL, err error) {
 	res.ShortPath = hash
 	return
 }
+
+// Обертка к запросу
 func ParserDataURLBatch(str *[]model.RequestBatch, basedurl string, userid string) (res []model.DataURL, res2 []model.ResponseBatch) {
 	res = []model.DataURL{}
 	res2 = []model.ResponseBatch{}

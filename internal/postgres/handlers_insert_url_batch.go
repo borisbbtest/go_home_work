@@ -11,6 +11,7 @@ const (
 	keyPostgresInsertsBatch = "pgsql.insert.tb.url.batch"
 )
 
+// Массовая вставка линков
 func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	ft := params[0].([]model.DataURL)

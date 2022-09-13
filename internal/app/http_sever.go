@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"time"
@@ -21,6 +22,7 @@ type serviceShortURL struct {
 	wrapp handlers.WrapperHandler
 }
 
+// Структура так так
 func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 	return &serviceShortURL{
 		wrapp: handlers.WrapperHandler{
@@ -52,6 +54,18 @@ func (hook *serviceShortURL) Start() (err error) {
 	//r.Use(middleware.Compress(5, "gzip"))
 	r.Use(middleware.Recoverer)
 	//yes
+	r.HandleFunc("/pprof/*", pprof.Index)
+	r.HandleFunc("/pprof/cmdline", pprof.Cmdline)
+	r.HandleFunc("/pprof/profile", pprof.Profile)
+	r.HandleFunc("/pprof/symbol", pprof.Symbol)
+	r.HandleFunc("/pprof/trace", pprof.Trace)
+	r.Handle("/pprof/goroutine", pprof.Handler("goroutine"))
+	r.Handle("/pprof/threadcreate", pprof.Handler("threadcreate"))
+	r.Handle("/pprof/mutex", pprof.Handler("mutex"))
+	r.Handle("/pprof/heap", pprof.Handler("heap"))
+	r.Handle("/pprof/block", pprof.Handler("block"))
+	r.Handle("/pprof/allocs", pprof.Handler("allocs"))
+
 	r.Get("/api/user/urls", hook.wrapp.GetHandlerCooke)
 	r.Get("/", hook.wrapp.GetHandler)
 	r.Get("/ping", hook.wrapp.GetHandlerPing)
@@ -69,7 +83,7 @@ func (hook *serviceShortURL) Start() (err error) {
 		Addr:         hook.wrapp.ServerConf.ServerAddress,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		WriteTimeout: 40 * time.Second,
 	}
 
 	err = server.ListenAndServe()

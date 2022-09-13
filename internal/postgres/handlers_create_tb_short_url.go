@@ -8,6 +8,7 @@ const (
 	keyPostgresCreateDdURL = "pgsql.create.tb.url"
 )
 
+// Создание таблиц в БД
 func (p *Plugin) CreateTbURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 	query := `
 				CREATE TABLE IF NOT EXISTS public."storeurl"

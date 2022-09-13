@@ -11,6 +11,7 @@ const (
 	keyPostgresDeletedShortURLBatch = "pgsql.deleted.tb.short.url.batch"
 )
 
+// Массовое удаление линков из БД
 func (p *Plugin) DeletedShortURLBatchURLHandler(conn *postgresConn, key string, params []interface{}) (interface{}, error) {
 
 	ft := params[0].([]model.DataURL)
