@@ -36,9 +36,9 @@ var buildDate = "N/A"
 var buildCommit = "N/A"
 
 func printIntro() {
-	log.Info("Build version: %s\n", buildVersion)
-	log.Info("Build date: %s\n", buildDate)
-	log.Info("Build commit: %s\n", buildCommit)
+	log.Info("Build version: ", buildVersion)
+	log.Info("Build date: ", buildDate)
+	log.Info("Build commit: ", buildCommit)
 }
 func (hook *serviceShortURL) Start() (err error) {
 
