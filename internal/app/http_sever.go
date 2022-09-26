@@ -31,8 +31,18 @@ func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 	}
 }
 
+var buildVersion = "N/A"
+var buildDate = "N/A"
+var buildCommit = "N/A"
+
+func printIntro() {
+	log.Info("Build version: %s\n", buildVersion)
+	log.Info("Build date: %s\n", buildDate)
+	log.Info("Build commit: %s\n", buildCommit)
+}
 func (hook *serviceShortURL) Start() (err error) {
 
+	printIntro()
 	// Launch the listening thread
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
