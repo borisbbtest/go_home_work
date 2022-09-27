@@ -1,7 +1,7 @@
 package main
 
 import (
-	mainmultichecker "github.com/borisbbtest/go_home_work/interna/multichecker"
+	mainmultichecker "github.com/borisbbtest/go_home_work/internal/multichecker"
 	"github.com/go-critic/go-critic/checkers/analyzer"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
