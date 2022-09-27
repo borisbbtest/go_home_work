@@ -1,7 +1,7 @@
 package main
 
 import (
-	mmc "github.com/borisbbtest/go_home_work/interna/multichecker"
+	mainmultichecker "github.com/borisbbtest/go_home_work/interna/multichecker"
 	"github.com/go-critic/go-critic/checkers/analyzer"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
@@ -19,7 +19,7 @@ func main() {
 	analyzers = append(analyzers, structtag.Analyzer)
 	analyzers = append(analyzers, analyzer.Analyzer)
 	analyzers = append(analyzers, analyzer.Analyzer)
-	analyzers = append(analyzers, mmc.Analyzer)
+	analyzers = append(analyzers, mainmultichecker.Analyzer)
 
 	multichecker.Main(analyzers...)
 }
