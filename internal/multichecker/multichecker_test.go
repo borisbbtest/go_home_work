@@ -9,5 +9,4 @@ import (
 
 func TestMyAnalyzer(t *testing.T) {
 	analysistest.Run(t, analysistest.TestData(), mainmultichecker.Analyzer, "./...")
-
 }
