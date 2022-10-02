@@ -210,7 +210,7 @@ func TestWrapperHandler_PostJSONHandlerBatch(t *testing.T) {
 			}
 
 			// // получаем и проверяем тело запроса
-			// defer res.Body.Close()
+			defer res.Body.Close()
 			// resBody, err := io.ReadAll(res.Body)
 			// if err != nil {
 			// 	t.Fatal(err)
