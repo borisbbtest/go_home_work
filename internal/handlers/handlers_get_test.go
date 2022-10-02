@@ -1,96 +1,144 @@
-package handlers
+package handlers_test
 
 import (
+	"io"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
+	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 )
 
-func TestWrapperHandler_GetHandler(t *testing.T) {
-	type fields struct {
-		ServerConf *config.ServiceShortURLConfig
-		Storage    storage.Storage
-		UserID     string
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			hook := &WrapperHandler{
-				ServerConf: tt.fields.ServerConf,
-				Storage:    tt.fields.Storage,
-				UserID:     tt.fields.UserID,
-			}
-			hook.GetHandler(tt.args.w, tt.args.r)
-		})
-	}
-}
-
 func TestWrapperHandler_GetHandlerCooke(t *testing.T) {
-	type fields struct {
-		ServerConf *config.ServiceShortURLConfig
-		Storage    storage.Storage
-		UserID     string
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+	type want struct {
+		code        int
+		response    string
+		contentType string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name string
+		want want
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Connetion test TestDeleteURLHandlers",
+			want: want{
+				code:        204,
+				response:    `No Content`,
+				contentType: "text/plain; charset=utf-8",
+			},
+		},
 	}
 	for _, tt := range tests {
+		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			hook := &WrapperHandler{
-				ServerConf: tt.fields.ServerConf,
-				Storage:    tt.fields.Storage,
-				UserID:     tt.fields.UserID,
+			request := httptest.NewRequest(http.MethodGet, "/api/user/urls", nil)
+
+			th := handlers.WrapperHandler{
+				ServerConf: &config.ServiceShortURLConfig{
+					Port:       8080,
+					ServerHost: "localhost",
+					BaseURL:    "http://localhost:8080",
+				},
 			}
-			hook.GetHandlerCooke(tt.args.w, tt.args.r)
+			th.Storage, _ = storage.NewFileStorage("")
+
+			// создаём новый Recorder
+			w := httptest.NewRecorder()
+			// определяем хендлер
+			r := chi.NewRouter()
+			r.Use(middleware.RequestID)
+			r.Use(middleware.RealIP)
+			r.Use(middleware.Logger)
+			r.Use(th.GzipHandle)
+			r.Use(th.MidSetCookie)
+			r.Get("/api/user/urls", th.GetHandlerCooke)
+
+			r.ServeHTTP(w, request)
+			res := w.Result()
+
+			// проверяем код ответа
+			if res.StatusCode != tt.want.code {
+				t.Errorf("Expected status code %d, got %d", tt.want.code, w.Code)
+			}
+
+			// получаем и проверяем тело запроса
+			defer res.Body.Close()
+			resBody, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(resBody) != tt.want.response {
+				t.Errorf("Expected body %s, got %s", tt.want.response, w.Body.String())
+			}
+
 		})
 	}
 }
 
 func TestWrapperHandler_GetHandlerPing(t *testing.T) {
-	type fields struct {
-		ServerConf *config.ServiceShortURLConfig
-		Storage    storage.Storage
-		UserID     string
-	}
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
+	type want struct {
+		code        int
+		response    string
+		contentType string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name string
+		want want
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Connetion test TestDeleteURLHandlers",
+			want: want{
+				code:        500,
+				response:    `error connection`,
+				contentType: "text/plain; charset=utf-8",
+			},
+		},
 	}
 	for _, tt := range tests {
+		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			hook := &WrapperHandler{
-				ServerConf: tt.fields.ServerConf,
-				Storage:    tt.fields.Storage,
-				UserID:     tt.fields.UserID,
+			request := httptest.NewRequest(http.MethodGet, "/ping", nil)
+
+			th := handlers.WrapperHandler{
+				ServerConf: &config.ServiceShortURLConfig{
+					Port:       8080,
+					ServerHost: "localhost",
+					BaseURL:    "http://localhost:8080",
+				},
 			}
-			hook.GetHandlerPing(tt.args.w, tt.args.r)
+			th.Storage, _ = storage.NewFileStorage("")
+
+			// создаём новый Recorder
+			w := httptest.NewRecorder()
+			// определяем хендлер
+			h := http.HandlerFunc(th.GetHandlerPing)
+			// запускаем сервер
+			h.ServeHTTP(w, request)
+			res := w.Result()
+
+			// проверяем код ответа
+			if res.StatusCode != tt.want.code {
+				t.Errorf("Expected status code %d, got %d", tt.want.code, w.Code)
+			}
+
+			// получаем и проверяем тело запроса
+			defer res.Body.Close()
+			resBody, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(resBody) != tt.want.response {
+				t.Errorf("Expected body %s, got %s", tt.want.response, w.Body.String())
+			}
+
+			// // заголовок ответа
+			// if res.Header.Get("Content-Type") != tt.want.contentType {
+			// 	//	t.Errorf("Expected Content-Type %s, got %s", tt.want.contentType, res.Header.Get("Content-Type"))
+			// }
 		})
 	}
 }

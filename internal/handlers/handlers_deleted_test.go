@@ -9,9 +9,11 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 )
 
-func TestDeleteURLHandlers(t *testing.T) {
+func TestWrapperHandler_DeleteURLHandlers(t *testing.T) {
 	type want struct {
 		code        int
 		response    string
@@ -22,10 +24,10 @@ func TestDeleteURLHandlers(t *testing.T) {
 		want want
 	}{
 		{
-			name: "Connetion test TestDeleteURLHandlers",
+			name: "Connetion test #1",
 			want: want{
-				code:        200,
-				response:    `OK`,
+				code:        202,
+				response:    "",
 				contentType: "text/plain; charset=utf-8",
 			},
 		},
@@ -33,13 +35,14 @@ func TestDeleteURLHandlers(t *testing.T) {
 	for _, tt := range tests {
 		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			request := httptest.NewRequest(http.MethodGet, "/api/user/urls", nil)
+			request := httptest.NewRequest(http.MethodDelete, "/api/user/urls", nil)
 
 			th := handlers.WrapperHandler{
 				ServerConf: &config.ServiceShortURLConfig{
-					Port:       8080,
-					ServerHost: "localhost",
-					BaseURL:    "http://localhost:8080",
+					Port:          8080,
+					ServerHost:    "localhost",
+					ServerAddress: "localhost:8080",
+					BaseURL:       "http://localhost:8080",
 				},
 			}
 			th.Storage, _ = storage.NewFileStorage("")
@@ -47,9 +50,19 @@ func TestDeleteURLHandlers(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер
-			h := http.HandlerFunc(th.GetHandler)
-			// запускаем сервер
-			h.ServeHTTP(w, request)
+			r := chi.NewRouter()
+			r.Use(middleware.RequestID)
+			r.Use(middleware.RealIP)
+			r.Use(middleware.Logger)
+			r.Use(th.GzipHandle)
+			r.Use(th.MidSetCookie)
+			r.Delete("/api/user/urls", th.DeleteURLHandlers)
+
+			r.ServeHTTP(w, request)
+
+			//Code is checking result
+			//I want a lot cod is checked
+			//I will be  covering more tests by unit test in my code
 			res := w.Result()
 
 			// проверяем код ответа
@@ -67,10 +80,6 @@ func TestDeleteURLHandlers(t *testing.T) {
 				t.Errorf("Expected body %s, got %s", tt.want.response, w.Body.String())
 			}
 
-			// заголовок ответа
-			if res.Header.Get("Content-Type") != tt.want.contentType {
-				t.Errorf("Expected Content-Type %s, got %s", tt.want.contentType, res.Header.Get("Content-Type"))
-			}
 		})
 	}
 }

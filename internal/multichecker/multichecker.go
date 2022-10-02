@@ -4,14 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/quasilyte/go-ruleguard/analyzer"
 	"golang.org/x/tools/go/analysis"
-	"golang.org/x/tools/go/analysis/multichecker"
-	"golang.org/x/tools/go/analysis/passes/printf"
-	"golang.org/x/tools/go/analysis/passes/shadow"
-	"golang.org/x/tools/go/analysis/passes/shift"
-	"golang.org/x/tools/go/analysis/passes/structtag"
-	"honnef.co/go/tools/staticcheck"
 )
 
 const Doc = `check using os.Exit() in main package`
@@ -58,27 +51,4 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		})
 	}
 	return nil, nil
-}
-
-type Maninmultichecker struct {
-	analyzers []*analysis.Analyzer
-}
-
-func InitMultichecker() (m *Maninmultichecker) {
-
-	m = &Maninmultichecker{}
-	for _, a := range staticcheck.Analyzers {
-		m.analyzers = append(m.analyzers, a.Analyzer)
-	}
-	m.analyzers = append(m.analyzers, printf.Analyzer)
-	m.analyzers = append(m.analyzers, shadow.Analyzer)
-	m.analyzers = append(m.analyzers, shift.Analyzer)
-	m.analyzers = append(m.analyzers, structtag.Analyzer)
-	m.analyzers = append(m.analyzers, analyzer.Analyzer)
-	m.analyzers = append(m.analyzers, Analyzer)
-	return m
-}
-
-func (m *Maninmultichecker) Start() {
-	multichecker.Main(m.analyzers...)
 }

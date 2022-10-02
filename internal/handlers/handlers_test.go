@@ -195,6 +195,7 @@ func TestStatusHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			// определяем хендлер
+
 			h := http.HandlerFunc(th.GetHandler)
 			// запускаем сервер
 			h.ServeHTTP(w, request)
