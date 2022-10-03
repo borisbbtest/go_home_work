@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
@@ -31,8 +29,18 @@ func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
 	}
 }
 
+var buildVersion = "N/A"
+var buildDate = "N/A"
+var buildCommit = "N/A"
+
+func printIntro() {
+	log.Info("Build version: ", buildVersion)
+	log.Info("Build date: ", buildDate)
+	log.Info("Build commit: ", buildCommit)
+}
 func (hook *serviceShortURL) Start() (err error) {
 
+	printIntro()
 	// Launch the listening thread
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
@@ -74,10 +82,6 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
 	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
-
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "web"))
-	hook.wrapp.FileServer(r, "/form", filesDir)
 
 	server := &http.Server{
 		Addr:         hook.wrapp.ServerConf.ServerAddress,

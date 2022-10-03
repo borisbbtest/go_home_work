@@ -14,6 +14,12 @@
 git remote add -m main template https://github.com/yandex-praktikum/go-musthave-shortener-tpl.git
 ```
 
+Процент покрытия кода юнит тестом
+```
+go test ./...  -coverprofile cover.out && go tool cover -func cover.out
+
+```
+
 Для обновления кода автотестов выполните команду:
 
 ```
