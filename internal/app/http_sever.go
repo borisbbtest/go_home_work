@@ -9,6 +9,7 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
@@ -90,10 +91,29 @@ func (hook *serviceShortURL) Start() (err error) {
 		WriteTimeout: 40 * time.Second,
 	}
 
-	err = server.ListenAndServe()
-	if err != nil {
-		return fmt.Errorf("can't start the listening thread: %s", err)
+	if hook.wrapp.ServerConf.EnableHTTPS == true {
+
+		err, cert, key := tools.CertGeg()
+		if err != nil {
+			return fmt.Errorf("can't start the listening thread: %s", err)
+		}
+
+		tools.WriteCertFile("cert.pem", cert)
+		tools.WriteCertFile("key.pem", key)
+		err = server.ListenAndServeTLS("cert.pem", "key.pem")
+
+		if err != nil {
+			return fmt.Errorf("can't start the listening thread: %s", err)
+		}
+
+	} else {
+		err = server.ListenAndServe()
+		if err != nil {
+			return fmt.Errorf("can't start the listening thread: %s", err)
+		}
+
 	}
+	defer server.Close()
 
 	log.Info("Exiting")
 	return nil

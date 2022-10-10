@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	goflag "flag"
 	"io/ioutil"
 
@@ -15,16 +16,18 @@ var log = logrus.WithField("context", "service_short_url")
 type ServiceShortURLConfig struct {
 	Port          int    `yaml:"port"`
 	ServerHost    string `yaml:"ServerHost"`
-	BaseURL       string `yaml:"BASE_URL"`
-	ServerAddress string `yaml:"SERVER_ADDRESS"`
-	FileStorePath string `yaml:"FILE_STORAGE_PATH"`
-	DataBaseDSN   string `yaml:"DATABASE_DSN"`
+	BaseURL       string `json:"base_url" yaml:"BASE_URL"`
+	ServerAddress string `json:"server_address" yaml:"SERVER_ADDRESS"`
+	FileStorePath string `json:"file_storage_path" yaml:"FILE_STORAGE_PATH"`
+	DataBaseDSN   string `json:"database_dsn" yaml:"DATABASE_DSN"`
+	EnableHTTPS   bool   `json:"enable_https" yaml:"ENABLE_HTTPS"`
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
 	BaseURL       string `env:"BASE_URL"`
 	FileStorePath string `env:"FILE_STORAGE_PATH"`
 	DataBaseDSN   string `env:"DATABASE_DSN"`
+	EnableHTTPS   string `env:"ENABLE_HTTPS"`
 }
 type ServerConfig interface {
 	GetConfig() (config *ServiceShortURLConfig, err error)
@@ -33,11 +36,13 @@ type ServerConfig interface {
 func GetConfig() (config *ServiceShortURLConfig, err error) {
 
 	var ServerAddress, BaseURL, FilePath, configFileName, DataBaseDSN string
+	EnableHTTPS := false
 	flag.StringVarP(&configFileName, "config", "c", "./config.yml", "path to the configuration file")
 	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
 	flag.StringVarP(&DataBaseDSN, "dsn", "d", "", "Set driver DSN ")
+	flag.BoolVarP(&EnableHTTPS, "tls", "s", false, "In HTTP server is Enable TLS")
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	flag.Parse()
 
@@ -58,7 +63,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 
 	err = yaml.Unmarshal(configFile, &config)
 	if err != nil {
-		log.Errorf("can't read the config file: %s", err)
+		log.Errorf("YAML can't read the config file: %s", err)
 	}
 
 	var cfgenv ConfigFromENV
@@ -78,6 +83,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		if cfgenv.DataBaseDSN != "" {
 			config.DataBaseDSN = cfgenv.DataBaseDSN
 		}
+		if cfgenv.EnableHTTPS != "" {
+			config.EnableHTTPS = true
+		}
 	}
 
 	if ServerAddress != "" {
@@ -92,7 +100,16 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	if DataBaseDSN != "" {
 		config.DataBaseDSN = DataBaseDSN
 	}
+	if EnableHTTPS == true {
+		config.EnableHTTPS = EnableHTTPS
+	}
 	//***postgres:5432/praktikum?sslmode=disable
+
+	err = json.Unmarshal(configFile, &config)
+	if err != nil {
+		log.Errorf("JSON can't read the config file: %s", err)
+	}
+
 	log.Info(config.DataBaseDSN)
 	log.Info("Configuration loaded")
 	return
