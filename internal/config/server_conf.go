@@ -60,6 +60,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		ServerAddress: "localhost:8080",
 		FileStorePath: "",
 		EnableHTTPS:   false,
+		DataBaseDSN:   "",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -106,11 +107,12 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	//***postgres:5432/praktikum?sslmode=disable
 
-	err = json.Unmarshal(configFile, &config)
-	if err != nil {
-		log.Errorf("JSON can't read the config file: %s", err)
+	if configFileName != "" {
+		err = json.Unmarshal(configFile, &config)
+		if err != nil {
+			log.Errorf("JSON can't read the config file: %s", err)
+		}
 	}
-
 	log.Info(config.DataBaseDSN)
 	log.Info("Configuration loaded")
 	return
