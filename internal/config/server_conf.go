@@ -107,12 +107,11 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	//***postgres:5432/praktikum?sslmode=disable
 
-	if configFileName != "" {
-		err = json.Unmarshal(configFile, &config)
-		if err != nil {
-			log.Errorf("JSON can't read the config file: %s", err)
-		}
+	err = json.Unmarshal(configFile, &config)
+	if err != nil {
+		log.Errorf("JSON can't read the config file: %s", err)
 	}
+
 	log.Info(config.DataBaseDSN)
 	log.Info("Configuration loaded")
 	return
