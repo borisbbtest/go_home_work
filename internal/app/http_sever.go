@@ -143,7 +143,7 @@ func (hook *serviceShortURL) Start() (err error) {
 
 		cert, key, err := tools.CertGeg()
 		if err != nil {
-			fmt.Errorf("BZ can't start the listening thread: %s", err)
+			return fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 		tools.WriteCertFile("cert.pem", cert)
@@ -151,13 +151,13 @@ func (hook *serviceShortURL) Start() (err error) {
 		err = server.ListenAndServeTLS("cert.pem", "key.pem")
 
 		if err != nil {
-			fmt.Errorf("BZ can't start the listening thread: %s", err)
+			return fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 	} else {
 		err = server.ListenAndServe()
 		if err != nil {
-			fmt.Errorf("BZ can't start the listening thread: %s", err)
+			return fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 	}
