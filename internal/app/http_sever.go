@@ -1,9 +1,13 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
@@ -53,7 +57,7 @@ func (hook *serviceShortURL) Start() (err error) {
 			log.Error(err)
 		}
 	}
-	defer hook.wrapp.Storage.Close()
+	//	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -91,11 +95,55 @@ func (hook *serviceShortURL) Start() (err error) {
 		WriteTimeout: 40 * time.Second,
 	}
 
+	// через этот канал сообщим основному потоку, что соединения закрыты
+	idleConnsClosed := make(chan struct{})
+	// канал для перенаправления прерываний
+	// поскольку нужно отловить всего одно прерывание,
+	// ёмкости 1 для канала будет достаточно
+	sigint := make(chan os.Signal, 1)
+	// регистрируем перенаправление прерываний
+	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	// запускаем горутину обработки пойманных прерываний
+	go func() {
+		// читаем из канала прерываний
+		// поскольку нужно прочитать только одно прерывание,
+		// можно обойтись без цикла
+		for {
+			s := <-sigint
+			switch s {
+			case syscall.SIGINT:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGINT:  %v", err)
+				}
+				log.Info("bz -SIGINT")
+				close(idleConnsClosed)
+			case syscall.SIGTERM:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGTERM: %v", err)
+				}
+				log.Info("bz - SIGTERM")
+				close(idleConnsClosed)
+			case syscall.SIGQUIT:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGQUIT: %v", err)
+				}
+				log.Info("bz - SIGQUIT")
+				close(idleConnsClosed)
+			default:
+				fmt.Println("Unknown signal.")
+			}
+		}
+	}()
+
+	defer server.Close()
 	if hook.wrapp.ServerConf.EnableHTTPS {
 
 		cert, key, err := tools.CertGeg()
 		if err != nil {
-			return fmt.Errorf("can't start the listening thread: %s", err)
+			fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 		tools.WriteCertFile("cert.pem", cert)
@@ -103,17 +151,25 @@ func (hook *serviceShortURL) Start() (err error) {
 		err = server.ListenAndServeTLS("cert.pem", "key.pem")
 
 		if err != nil {
-			return fmt.Errorf("can't start the listening thread: %s", err)
+			fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 	} else {
 		err = server.ListenAndServe()
 		if err != nil {
-			return fmt.Errorf("can't start the listening thread: %s", err)
+			fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 	}
-	defer server.Close()
+	// ждём завершения процедуры graceful shutdown
+	<-idleConnsClosed
+	// получили оповещение о завершении
+	// здесь можно освобождать ресурсы перед выходом,
+	// например закрыть соединение с базой данных,
+	// закрыть открытые файлы
+	hook.wrapp.Storage.Close()
+
+	log.Info("Server Shutdown gracefully")
 
 	log.Info("Exiting")
 	return nil
