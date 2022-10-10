@@ -113,7 +113,7 @@ func (hook *serviceShortURL) Start() (err error) {
 		}
 
 	}
-	defer server.Close()
+	//defer server.Close()
 
 	log.Info("Exiting")
 	return nil
