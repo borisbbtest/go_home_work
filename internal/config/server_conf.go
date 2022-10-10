@@ -37,7 +37,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 
 	var ServerAddress, BaseURL, FilePath, configFileName, DataBaseDSN string
 	EnableHTTPS := false
-	flag.StringVarP(&configFileName, "config", "c", "./config.yml", "path to the configuration file")
+	flag.StringVarP(&configFileName, "config", "c", "", "path to the configuration file")
 	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
@@ -100,7 +100,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	if DataBaseDSN != "" {
 		config.DataBaseDSN = DataBaseDSN
 	}
-	if EnableHTTPS == true {
+	if EnableHTTPS {
 		config.EnableHTTPS = EnableHTTPS
 	}
 	//***postgres:5432/praktikum?sslmode=disable

@@ -91,9 +91,9 @@ func (hook *serviceShortURL) Start() (err error) {
 		WriteTimeout: 40 * time.Second,
 	}
 
-	if hook.wrapp.ServerConf.EnableHTTPS == true {
+	if hook.wrapp.ServerConf.EnableHTTPS {
 
-		err, cert, key := tools.CertGeg()
+		cert, key, err := tools.CertGeg()
 		if err != nil {
 			return fmt.Errorf("can't start the listening thread: %s", err)
 		}

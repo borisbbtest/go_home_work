@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func CertGeg() (err error, certPEM bytes.Buffer, privateKeyPEM bytes.Buffer) {
+func CertGeg() (certPEM bytes.Buffer, privateKeyPEM bytes.Buffer, err error) {
 	// создаём шаблон сертификата
 	cert := &x509.Certificate{
 		// указываем уникальный номер сертификата
