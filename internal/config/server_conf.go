@@ -59,6 +59,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		BaseURL:       "http://localhost:8080",
 		ServerAddress: "localhost:8080",
 		FileStorePath: "",
+		EnableHTTPS:   false,
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
