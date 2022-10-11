@@ -143,20 +143,21 @@ func (hook *serviceShortURL) Start() (err error) {
 
 		cert, key, err := tools.CertGeg()
 		if err != nil {
-			return fmt.Errorf("BZ can't start the listening thread: %s", err)
+			return fmt.Errorf("BZ Certificate and key wasn't generation: %s", err)
 		}
 
 		tools.WriteCertFile("cert.pem", cert)
 		tools.WriteCertFile("key.pem", key)
 		err = server.ListenAndServeTLS("cert.pem", "key.pem")
 
-		if err != nil {
+		if err != http.ErrServerClosed {
 			return fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
 	} else {
 		err = server.ListenAndServe()
-		if err != nil {
+		if err != http.ErrServerClosed {
+
 			return fmt.Errorf("BZ can't start the listening thread: %s", err)
 		}
 
