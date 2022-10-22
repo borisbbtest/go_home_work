@@ -11,6 +11,10 @@ type ResponseURL struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
+type ResponseStats struct {
+	URLs  int32 `json:"urls"`
+	Users int32 `json:"users"`
+}
 type ResponseBatch struct {
 	CorrelationID string `json:"correlation_id"`
 	ShortURL      string `json:"short_url"`

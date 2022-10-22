@@ -72,7 +72,24 @@ func (hook *StoreDBinPostgreSQL) GetAll(k string, dom string) ([]model.ResponseU
 
 	return []model.ResponseURL{}, nil
 }
+func (hook *StoreDBinPostgreSQL) GetStats() (res model.ResponseStats, err error) {
 
+	res.Users = 0
+	res.URLs = 0
+	users, err := hook.pgp.NewDBConn("pgsql.select.tb.users.count", []string{}, hook.connStr, []interface{}{})
+	if err != nil {
+		log.Error("pgsql.select.tb.users.count", err)
+		return res, err
+	}
+	urls, err := hook.pgp.NewDBConn("pgsql.select.tb.url.count", []string{}, hook.connStr, []interface{}{})
+	if err != nil {
+		log.Error("pgsql.select.tb.url.count", err)
+		return res, err
+	}
+	res.Users = users.(int32)
+	res.URLs = urls.(int32)
+	return
+}
 func (hook *StoreDBinPostgreSQL) Close() {
 	hook.pgp.Stop()
 }

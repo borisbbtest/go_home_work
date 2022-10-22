@@ -21,6 +21,7 @@ type ServiceShortURLConfig struct {
 	FileStorePath string `json:"file_storage_path" yaml:"FILE_STORAGE_PATH"`
 	DataBaseDSN   string `json:"database_dsn" yaml:"DATABASE_DSN"`
 	EnableHTTPS   bool   `json:"enable_https" yaml:"ENABLE_HTTPS"`
+	TrustedSubnet string `json:"trusted_subnet" yaml:"TRUSTED_SUBNET"`
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
@@ -28,6 +29,7 @@ type ConfigFromENV struct {
 	FileStorePath string `env:"FILE_STORAGE_PATH"`
 	DataBaseDSN   string `env:"DATABASE_DSN"`
 	EnableHTTPS   string `env:"ENABLE_HTTPS"`
+	TrustedSubnet string `env:"TRUSTED_SUBNET"`
 }
 type ServerConfig interface {
 	GetConfig() (config *ServiceShortURLConfig, err error)
@@ -35,11 +37,12 @@ type ServerConfig interface {
 
 func GetConfig() (config *ServiceShortURLConfig, err error) {
 
-	var ServerAddress, BaseURL, FilePath, configFileName, DataBaseDSN string
+	var ServerAddress, BaseURL, FilePath, configFileName, TrustedSubnet, DataBaseDSN string
 	EnableHTTPS := false
 	flag.StringVarP(&configFileName, "config", "c", "", "path to the configuration file")
 	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
+	flag.StringVarP(&TrustedSubnet, "trusted_subnet", "t", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
 	flag.StringVarP(&DataBaseDSN, "dsn", "d", "", "Set driver DSN ")
 	flag.BoolVarP(&EnableHTTPS, "tls", "s", false, "In HTTP server is Enable TLS")
@@ -61,6 +64,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		FileStorePath: "",
 		EnableHTTPS:   false,
 		DataBaseDSN:   "",
+		TrustedSubnet: "",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -88,6 +92,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		if cfgenv.EnableHTTPS != "" {
 			config.EnableHTTPS = true
 		}
+		if cfgenv.TrustedSubnet != "" {
+			config.TrustedSubnet = cfgenv.TrustedSubnet
+		}
 	}
 
 	if ServerAddress != "" {
@@ -101,6 +108,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	if DataBaseDSN != "" {
 		config.DataBaseDSN = DataBaseDSN
+	}
+	if TrustedSubnet != "" {
+		config.TrustedSubnet = TrustedSubnet
 	}
 	if EnableHTTPS {
 		config.EnableHTTPS = EnableHTTPS

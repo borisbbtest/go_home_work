@@ -87,6 +87,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
 	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
+	r.Get("/api/internal/stats", hook.wrapp.GetHandlerStats)
 
 	server := &http.Server{
 		Addr:         hook.wrapp.ServerConf.ServerAddress,

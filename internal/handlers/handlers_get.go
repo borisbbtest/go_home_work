@@ -65,6 +65,32 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 	//log.Printf("Get handler")
 }
 
+func (hook *WrapperHandler) GetHandlerStats(w http.ResponseWriter, r *http.Request) {
+
+	if len(hook.UserID) == 0 {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(204)
+		fmt.Fprint(w, "No Content")
+		return
+		//log.Printf("Get handler")
+	}
+	_, err := tools.TrustedSubnet(r, hook.ServerConf.TrustedSubnet)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(403)
+		log.Error(err)
+		fmt.Fprint(w, "403 Forbidden")
+		return
+	}
+
+	responseShortURL, _ := hook.Storage.GetStats()
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(responseShortURL)
+
+	//log.Printf("Get handler")
+}
+
 // GetHandlerPing пинголятор
 func (hook *WrapperHandler) GetHandlerPing(w http.ResponseWriter, r *http.Request) {
 

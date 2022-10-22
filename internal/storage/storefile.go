@@ -93,6 +93,13 @@ func (hook StoreDBinFile) Close() {
 func (hook StoreDBinFile) PutBatch(k string, v []model.DataURL) error {
 	return nil
 }
+func (hook StoreDBinFile) GetStats() (res model.ResponseStats, err error) {
+	res = model.ResponseStats{
+		URLs:  int32(len(hook.ListUser)),
+		Users: int32(len(hook.DB)),
+	}
+	return
+}
 
 func (hook StoreDBinFile) DeletedURLBatch(k string, v []model.DataURL) error {
 	return nil
