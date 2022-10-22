@@ -19,7 +19,6 @@ func TrustedSubnet(r *http.Request, sub string) (bool, error) {
 		// этот заголовок содержит адреса отправителя и промежуточных прокси
 		// в виде 203.0.113.195, 70.41.3.18, 150.172.238.178
 		ips := r.Header.Get("X-Forwarded-For")
-		fmt.Println(ips)
 		// разделяем цепочку адресов
 		ipStrs := strings.Split(ips, ",")
 		// интересует только первый
@@ -31,7 +30,7 @@ func TrustedSubnet(r *http.Request, sub string) (bool, error) {
 		return false, fmt.Errorf("failed parse ip from http header %s", ipStr)
 	}
 	if !subnet.Contains(ip) {
-		return false, fmt.Errorf("IP doesn't trusted", ip.String())
+		return false, fmt.Errorf("IP doesn't trusted %s", ip.String())
 	}
 	return true, nil
 
