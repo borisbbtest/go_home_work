@@ -1,14 +1,19 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
 	"github.com/borisbbtest/go_home_work/internal/handlers"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
@@ -52,7 +57,7 @@ func (hook *serviceShortURL) Start() (err error) {
 			log.Error(err)
 		}
 	}
-	defer hook.wrapp.Storage.Close()
+	//	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -90,10 +95,82 @@ func (hook *serviceShortURL) Start() (err error) {
 		WriteTimeout: 40 * time.Second,
 	}
 
-	err = server.ListenAndServe()
-	if err != nil {
-		return fmt.Errorf("can't start the listening thread: %s", err)
+	// через этот канал сообщим основному потоку, что соединения закрыты
+	idleConnsClosed := make(chan struct{})
+	// канал для перенаправления прерываний
+	// поскольку нужно отловить всего одно прерывание,
+	// ёмкости 1 для канала будет достаточно
+	sigint := make(chan os.Signal, 1)
+	// регистрируем перенаправление прерываний
+	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	// запускаем горутину обработки пойманных прерываний
+	go func() {
+		// читаем из канала прерываний
+		// поскольку нужно прочитать только одно прерывание,
+		// можно обойтись без цикла
+		for {
+			s := <-sigint
+			switch s {
+			case syscall.SIGINT:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGINT:  %v", err)
+				}
+				log.Info("bz -SIGINT")
+				close(idleConnsClosed)
+			case syscall.SIGTERM:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGTERM: %v", err)
+				}
+				log.Info("bz - SIGTERM")
+				close(idleConnsClosed)
+			case syscall.SIGQUIT:
+				if err := server.Shutdown(context.Background()); err != nil {
+					// ошибки закрытия Listener
+					log.Printf("HTTP server Shutdown SIGQUIT: %v", err)
+				}
+				log.Info("bz - SIGQUIT")
+				close(idleConnsClosed)
+			default:
+				fmt.Println("Unknown signal.")
+			}
+		}
+	}()
+
+	defer server.Close()
+	if hook.wrapp.ServerConf.EnableHTTPS {
+
+		cert, key, err := tools.CertGeg()
+		if err != nil {
+			return fmt.Errorf("BZ Certificate and key wasn't generation: %s", err)
+		}
+
+		tools.WriteCertFile("cert.pem", cert)
+		tools.WriteCertFile("key.pem", key)
+		err = server.ListenAndServeTLS("cert.pem", "key.pem")
+
+		if err != http.ErrServerClosed {
+			return fmt.Errorf("BZ can't start the listening thread: %s", err)
+		}
+
+	} else {
+		err = server.ListenAndServe()
+		if err != http.ErrServerClosed {
+
+			return fmt.Errorf("BZ can't start the listening thread: %s", err)
+		}
+
 	}
+	// ждём завершения процедуры graceful shutdown
+	<-idleConnsClosed
+	// получили оповещение о завершении
+	// здесь можно освобождать ресурсы перед выходом,
+	// например закрыть соединение с базой данных,
+	// закрыть открытые файлы
+	hook.wrapp.Storage.Close()
+
+	log.Info("Server Shutdown gracefully")
 
 	log.Info("Exiting")
 	return nil
