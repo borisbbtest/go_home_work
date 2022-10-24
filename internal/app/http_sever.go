@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	"github.com/borisbbtest/go_home_work/internal/handlers"
+	handlershttp "github.com/borisbbtest/go_home_work/internal/handlers_http"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/go-chi/chi/middleware"
@@ -22,13 +22,13 @@ import (
 var log = logrus.WithField("context", "service_short_url")
 
 type serviceHttpShortURL struct {
-	wrapp handlers.WrapperHandler
+	wrapp handlershttp.WrapperHandler
 }
 
 // Структура так так
 func NewHTTP(cfg *config.ServiceShortURLConfig) *serviceHttpShortURL {
 	return &serviceHttpShortURL{
-		wrapp: handlers.WrapperHandler{
+		wrapp: handlershttp.WrapperHandler{
 			ServerConf: cfg,
 		},
 	}

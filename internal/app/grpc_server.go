@@ -4,17 +4,17 @@ import (
 	"net"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	"github.com/borisbbtest/go_home_work/internal/handlers"
+	handlersgrpc "github.com/borisbbtest/go_home_work/internal/handlers_grpc"
 	"google.golang.org/grpc"
 )
 
 type service_RPC_ShortURL struct {
-	wrapp handlers.WrapperHandler
+	wrapp handlersgrpc.WrapperHandler
 }
 
-func NewRPC(cfg *config.ServiceShortURLConfig) *serviceHttpShortURL {
-	return &serviceHttpShortURL{
-		wrapp: handlers.WrapperHandler{
+func NewRPC(cfg *config.ServiceShortURLConfig) *service_RPC_ShortURL {
+	return &service_RPC_ShortURL{
+		wrapp: handlersgrpc.WrapperHandler{
 			ServerConf: cfg,
 		},
 	}

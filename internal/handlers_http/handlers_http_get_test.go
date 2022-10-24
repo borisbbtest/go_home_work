@@ -1,4 +1,4 @@
-package handlers_test
+package handlershttp_test
 
 import (
 	"io"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	"github.com/borisbbtest/go_home_work/internal/handlers"
+	handlershttp "github.com/borisbbtest/go_home_work/internal/handlers_http"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -37,7 +37,7 @@ func TestWrapperHandler_GetHandlerCooke(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodGet, "/api/user/urls", nil)
 
-			th := handlers.WrapperHandler{
+			th := handlershttp.WrapperHandler{
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",
@@ -103,7 +103,7 @@ func TestWrapperHandler_GetHandlerPing(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodGet, "/ping", nil)
 
-			th := handlers.WrapperHandler{
+			th := handlershttp.WrapperHandler{
 				ServerConf: &config.ServiceShortURLConfig{
 					Port:       8080,
 					ServerHost: "localhost",

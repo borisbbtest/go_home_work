@@ -4,5 +4,6 @@
     "file_storage_path": "/tmp/test",
     "database_dsn": "postgres://postgres:boris123@localhost:5432/praktikum?sslmode=disable",
     "enable_https": false,
-    "trusted_subnet": "127.0.0.0/24"
+    "trusted_subnet": "127.0.0.0/24",
+    "server_address_grpc": "localhost:3200"
 }
