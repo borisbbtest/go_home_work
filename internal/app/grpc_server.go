@@ -36,5 +36,5 @@ func (hook *service_RPC_ShortURL) Start() (err error) {
 	if err := s.Serve(listen); err != nil {
 		log.Fatal(err)
 	}
-
+	return
 }

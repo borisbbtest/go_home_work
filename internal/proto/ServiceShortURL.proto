@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package shortrpc;
+
+option go_package = "proto/shortrpc";
+
+message Request {
+    string query = 1;  // запрос
+    int32  page  = 2;  // номер страницы
+    int32  limit = 3;  // количество записей
+  } 
