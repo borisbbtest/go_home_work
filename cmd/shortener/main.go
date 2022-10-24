@@ -28,7 +28,7 @@ func main() {
 		}
 	}
 
-	err = app.New(cfg).Start()
+	err = app.NewHTTP(cfg).Start()
 	if err != nil {
 		log.Fatal(err)
 	}
