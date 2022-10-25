@@ -12,7 +12,7 @@ func (hook *WrapperHandlerRPC) GetStats(ctx context.Context, in *shortrpc.GetSta
 		Status: "ok",
 	}
 
-	_, err := tools.TrustedSubnetIp(in.GetIpAddress(), hook.ServerConf.TrustedSubnet)
+	_, err := tools.TrustedSubnetIP(in.GetIpAddress(), hook.ServerConf.TrustedSubnet)
 	if err != nil {
 		res.Status = err.Error()
 		return &res, nil

@@ -21,13 +21,13 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-type serviceHttpShortURL struct {
+type serviceHTTPShortURL struct {
 	wrapp handlershttp.WrapperHandler
 }
 
 // Структура так так
-func NewHTTP(cfg *config.ServiceShortURLConfig) *serviceHttpShortURL {
-	return &serviceHttpShortURL{
+func NewHTTP(cfg *config.ServiceShortURLConfig) *serviceHTTPShortURL {
+	return &serviceHTTPShortURL{
 		wrapp: handlershttp.WrapperHandler{
 			ServerConf: cfg,
 		},
@@ -43,7 +43,7 @@ func printIntro() {
 	log.Info("Build date: ", buildDate)
 	log.Info("Build commit: ", buildCommit)
 }
-func (hook *serviceHttpShortURL) Start() (err error) {
+func (hook *serviceHTTPShortURL) Start() (err error) {
 
 	printIntro()
 	// Launch the listening thread

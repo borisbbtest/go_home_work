@@ -10,19 +10,19 @@ import (
 	"google.golang.org/grpc"
 )
 
-type service_RPC_ShortURL struct {
+type serviceRPCShortURL struct {
 	wrapp handlersgrpc.WrapperHandlerRPC
 }
 
-func NewRPC(cfg *config.ServiceShortURLConfig) *service_RPC_ShortURL {
-	return &service_RPC_ShortURL{
+func NewRPC(cfg *config.ServiceShortURLConfig) *serviceRPCShortURL {
+	return &serviceRPCShortURL{
 		wrapp: handlersgrpc.WrapperHandlerRPC{
 			ServerConf: cfg,
 		},
 	}
 }
 
-func (hook *service_RPC_ShortURL) Start() (err error) {
+func (hook *serviceRPCShortURL) Start() (err error) {
 
 	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
 	if err != nil {

@@ -15,6 +15,10 @@ func (hook *WrapperHandlerRPC) Create(ctx context.Context, in *shortrpc.CreateRe
 	log.Info(in.GetOriginalUrl())
 	hashcode, err := storage.ParserDataURL(in.GetOriginalUrl())
 
+	if err != nil {
+		log.Info(err)
+	}
+
 	log.Info(hashcode.ShortPath)
 	hashcode.UserID = in.GetUserId()
 	gl, err := hook.Storage.Put(hashcode.ShortPath, hashcode)

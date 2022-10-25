@@ -36,7 +36,7 @@ func TrustedSubnet(r *http.Request, sub string) (bool, error) {
 
 }
 
-func TrustedSubnetIp(ipStr string, sub string) (bool, error) {
+func TrustedSubnetIP(ipStr string, sub string) (bool, error) {
 
 	// смотрим заголовок запроса X-Real-IP
 	_, subnet, _ := net.ParseCIDR(sub)
