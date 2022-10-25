@@ -70,7 +70,14 @@ func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 // Получаем все линки из БД у пользователя
 func (hook *StoreDBinPostgreSQL) GetAll(k string, dom string) ([]model.ResponseURL, error) {
 
-	return []model.ResponseURL{}, nil
+	buff := []interface{}{k, dom}
+	res, err := hook.pgp.NewDBConn("pgsql.select.tb.all.url", []string{}, hook.connStr, buff)
+	if err != nil {
+		log.Error("pgsql.select.tb.url", err)
+		return []model.ResponseURL{}, err
+	}
+
+	return res.([]model.ResponseURL), nil
 }
 func (hook *StoreDBinPostgreSQL) GetStats() (res model.ResponseStats, err error) {
 

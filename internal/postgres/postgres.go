@@ -85,6 +85,8 @@ func (p *Plugin) NewDBConn(key string, params []string, dsnString string, handle
 		handler = p.selectCountURLlHandler
 	case keyPostgresSelectCountUsers:
 		handler = p.selectCountUsersHandler
+	case keyPostgresAllSelectURL:
+		handler = p.selectAllURLHandler
 	default:
 		return nil, errorUnsupportedQuery
 	}
