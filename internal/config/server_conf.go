@@ -22,6 +22,7 @@ type ServiceShortURLConfig struct {
 	DataBaseDSN   string `json:"database_dsn" yaml:"DATABASE_DSN"`
 	EnableHTTPS   bool   `json:"enable_https" yaml:"ENABLE_HTTPS"`
 	TrustedSubnet string `json:"trusted_subnet" yaml:"TRUSTED_SUBNET"`
+	ServerRPC     string `json:"server_address_grpc" yaml:"SERVER_GRPC"`
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
@@ -30,6 +31,7 @@ type ConfigFromENV struct {
 	DataBaseDSN   string `env:"DATABASE_DSN"`
 	EnableHTTPS   string `env:"ENABLE_HTTPS"`
 	TrustedSubnet string `env:"TRUSTED_SUBNET"`
+	ServerRPC     string `env:"SERVER_GRPC"`
 }
 type ServerConfig interface {
 	GetConfig() (config *ServiceShortURLConfig, err error)
@@ -37,10 +39,11 @@ type ServerConfig interface {
 
 func GetConfig() (config *ServiceShortURLConfig, err error) {
 
-	var ServerAddress, BaseURL, FilePath, configFileName, TrustedSubnet, DataBaseDSN string
+	var ServerAddress, BaseURL, FilePath, configFileName, TrustedSubnet, DataBaseDSN, ServerRPC string
 	EnableHTTPS := false
 	flag.StringVarP(&configFileName, "config", "c", "", "path to the configuration file")
-	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
+	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders HTTP")
+	flag.StringVarP(&ServerRPC, "server_rpc", "g", "", "Server Adders GRPC")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
 	flag.StringVarP(&TrustedSubnet, "trusted_subnet", "t", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
@@ -65,6 +68,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		EnableHTTPS:   false,
 		DataBaseDSN:   "",
 		TrustedSubnet: "",
+		ServerRPC:     "localhost:3200",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -79,6 +83,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	} else {
 		if cfgenv.ServerAddress != "" {
 			config.ServerAddress = cfgenv.ServerAddress
+		}
+		if cfgenv.ServerRPC != "" {
+			config.ServerRPC = cfgenv.ServerRPC
 		}
 		if cfgenv.BaseURL != "" {
 			config.BaseURL = cfgenv.BaseURL
@@ -99,6 +106,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 
 	if ServerAddress != "" {
 		config.ServerAddress = ServerAddress
+	}
+	if ServerRPC != "" {
+		config.ServerRPC = ServerRPC
 	}
 	if BaseURL != "" {
 		config.BaseURL = BaseURL

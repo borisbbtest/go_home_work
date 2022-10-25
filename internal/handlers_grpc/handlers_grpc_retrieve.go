@@ -11,18 +11,23 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-type WrapperHandler struct {
+type WrapperHandlerRPC struct {
 	ServerConf *config.ServiceShortURLConfig
 	Storage    storage.Storage
 	UserID     string
 	shortrpc.UnimplementedShortURLServer
 }
 
-func (hool *WrapperHandler) Retrieve(ctx context.Context, in *shortrpc.RetrieveRequest) (*shortrpc.RetrieveResponse, error) {
-	var res shortrpc.RetrieveResponse
-	res = shortrpc.RetrieveResponse{
-		Status:      "1",
-		RedirectUrl: "sss",
+func (hook *WrapperHandlerRPC) Retrieve(ctx context.Context, in *shortrpc.RetrieveRequest) (*shortrpc.RetrieveResponse, error) {
+	res := shortrpc.RetrieveResponse{
+		Status: "ok",
 	}
+	value, err := hook.Storage.Get(in.GetShortUrlId())
+
+	if err != nil {
+		res.Status = err.Error()
+	}
+	res.RedirectUrl = value.URL
+
 	return &res, nil
 }
