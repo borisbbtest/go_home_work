@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	handlershttp "github.com/borisbbtest/go_home_work/internal/handlers_http"
+	handlershttp "github.com/borisbbtest/go_home_work/internal/handlers/handlers_http"
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 )

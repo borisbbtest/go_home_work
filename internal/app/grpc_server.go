@@ -4,7 +4,7 @@ import (
 	"net"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	handlersgrpc "github.com/borisbbtest/go_home_work/internal/handlers_grpc"
+	handlersgrpc "github.com/borisbbtest/go_home_work/internal/handlers/handlers_grpc"
 	"github.com/borisbbtest/go_home_work/internal/proto/shortrpc"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"google.golang.org/grpc"
