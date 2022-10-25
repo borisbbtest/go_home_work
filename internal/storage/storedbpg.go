@@ -73,7 +73,7 @@ func (hook *StoreDBinPostgreSQL) GetAll(k string, dom string) ([]model.ResponseU
 	buff := []interface{}{k, dom}
 	res, err := hook.pgp.NewDBConn("pgsql.select.tb.all.url", []string{}, hook.connStr, buff)
 	if err != nil {
-		log.Error("pgsql.select.tb.url", err)
+		log.Error("pgsql.select.tb.all.url", err)
 		return []model.ResponseURL{}, err
 	}
 

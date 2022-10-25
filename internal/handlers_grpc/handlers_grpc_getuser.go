@@ -16,10 +16,13 @@ func (hook *WrapperHandlerRPC) GetUserURLs(ctx context.Context, in *shortrpc.Get
 	if err != nil {
 		res.Status = err.Error()
 	}
-	for index, value := range responseShortURL {
-		log.Info(value.OriginalURL)
-		res.Urls[index].OriginalUrl = value.OriginalURL
-		res.Urls[index].ShortUrl = value.ShortURL
+	for _, value := range responseShortURL {
+		x := shortrpc.GetUserURLsResponse_URL{
+			ShortUrl:    value.ShortURL,
+			OriginalUrl: value.OriginalURL,
+		}
+		res.Urls = append(res.Urls, &x)
+
 	}
 
 	return &res, nil

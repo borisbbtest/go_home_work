@@ -35,3 +35,20 @@ func TrustedSubnet(r *http.Request, sub string) (bool, error) {
 	return true, nil
 
 }
+
+func TrustedSubnetIp(ipStr string, sub string) (bool, error) {
+
+	// смотрим заголовок запроса X-Real-IP
+	_, subnet, _ := net.ParseCIDR(sub)
+	// парсим ip
+	ip := net.ParseIP(ipStr)
+
+	if ip == nil {
+		return false, fmt.Errorf("failed parse ip from http header %s", ipStr)
+	}
+	if !subnet.Contains(ip) {
+		return false, fmt.Errorf("IP doesn't trusted %s", ip.String())
+	}
+	return true, nil
+
+}

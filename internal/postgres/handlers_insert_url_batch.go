@@ -34,6 +34,7 @@ func (p *Plugin) insertBatchURLHandler(conn *postgresConn, key string, params []
 	var rows pgx.Rows
 	for qerr == nil {
 		rows, qerr = batchResults.Query()
+		log.Info(qerr)
 		rows.Close()
 	}
 	tx.Commit(ctx)
