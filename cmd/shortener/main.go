@@ -24,7 +24,7 @@ func main() {
 			ServerHost:    "localhost",
 			BaseURL:       "http://localhost:8080",
 			ServerAddress: "localhost:8080",
-			FileStorePath: "/tmp/test",
+			FileStorePath: "",
 		}
 	}
 	ap, err := app.Init(cfg)
