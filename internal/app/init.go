@@ -18,7 +18,6 @@ func Init(cfg *config.ServiceShortURLConfig) (res *ServiceShortURL, err error) {
 		res.Storage, err = storage.NewFileStorage(cfg.FileStorePath)
 		if err != nil {
 			log.Error(err)
-			return
 		}
 	}
 	res.ServerConf = cfg

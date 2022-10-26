@@ -29,7 +29,7 @@ func main() {
 	}
 	ap, err := app.Init(cfg)
 	if err != nil {
-		os.Exit(1)
+		log.Error(err)
 	}
 	ap.Start()
 }
