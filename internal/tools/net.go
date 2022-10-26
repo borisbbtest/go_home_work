@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-func TrustedSubnetIP(ipStr string, subnet net.IPNet) (bool, error) {
+func TrustedSubnet(ipStr string, subnet net.IPNet) (bool, error) {
 
 	// смотрим заголовок запроса X-Real-IP
 	// парсим ip

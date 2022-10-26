@@ -15,7 +15,7 @@ func (hook *WrapperHandlerRPC) GetStats(ctx context.Context, in *shortrpc.GetSta
 		Code:   1,
 	}
 
-	_, err := tools.TrustedSubnetIP(in.GetIpAddress(), *hook.ServerConf.Subnet)
+	_, err := tools.TrustedSubnet(in.GetIpAddress(), *hook.ServerConf.Subnet)
 	if err != nil {
 		res.Status = err.Error()
 		return &res, status.Error(codes.PermissionDenied, "Please, You will call the administrator for access in endpoint")

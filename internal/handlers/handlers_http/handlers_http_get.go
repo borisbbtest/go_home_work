@@ -76,12 +76,12 @@ func (hook *WrapperHandler) GetHandlerStats(w http.ResponseWriter, r *http.Reque
 		//log.Printf("Get handler")
 	}
 
-	_, err := tools.TrustedSubnetIP(r.Header.Get(r.Header.Get("X-Real-IP")), *hook.ServerConf.Subnet)
+	_, err := tools.TrustedSubnet(r.Header.Get(r.Header.Get("X-Real-IP")), *hook.ServerConf.Subnet)
 	if err != nil {
 		ips := r.Header.Get("X-Forwarded-For")
 		ipStrs := strings.Split(ips, ",")
 		ipStr := ipStrs[0]
-		_, err = tools.TrustedSubnetIP(ipStr, *hook.ServerConf.Subnet)
+		_, err = tools.TrustedSubnet(ipStr, *hook.ServerConf.Subnet)
 	}
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
