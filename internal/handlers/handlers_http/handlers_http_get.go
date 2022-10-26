@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/borisbbtest/go_home_work/internal/tools"
@@ -55,7 +56,7 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 
 	if err != nil || len(responseShortURL) <= 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(204)
+		w.WriteHeader(http.StatusNoContent)
 		fmt.Fprint(w, "No Content")
 		return
 	}
@@ -69,15 +70,22 @@ func (hook *WrapperHandler) GetHandlerStats(w http.ResponseWriter, r *http.Reque
 
 	if len(hook.UserID) == 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(204)
+		w.WriteHeader(http.StatusNoContent)
 		fmt.Fprint(w, "No Content")
 		return
 		//log.Printf("Get handler")
 	}
-	_, err := tools.TrustedSubnet(r, hook.ServerConf.TrustedSubnet)
+
+	_, err := tools.TrustedSubnetIP(r.Header.Get(r.Header.Get("X-Real-IP")), *hook.ServerConf.Subnet)
+	if err != nil {
+		ips := r.Header.Get("X-Forwarded-For")
+		ipStrs := strings.Split(ips, ",")
+		ipStr := ipStrs[0]
+		_, err = tools.TrustedSubnetIP(ipStr, *hook.ServerConf.Subnet)
+	}
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(403)
+		w.WriteHeader(http.StatusForbidden)
 		log.Error(err)
 		fmt.Fprint(w, "403 Forbidden")
 		return
@@ -97,14 +105,14 @@ func (hook *WrapperHandler) GetHandlerPing(w http.ResponseWriter, r *http.Reques
 	_, status := tools.PingDataBase(hook.ServerConf.DataBaseDSN)
 	if status != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(500)
+		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "error connection")
 		return
 		//log.Printf("Get handler")
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "ok")
 
 	//log.Printf("Get handler")

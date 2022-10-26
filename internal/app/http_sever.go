@@ -26,10 +26,11 @@ type serviceHTTPShortURL struct {
 }
 
 // Структура так так
-func NewHTTP(cfg *config.ServiceShortURLConfig) *serviceHTTPShortURL {
+func NewHTTP(cfg *config.ServiceShortURLConfig, st storage.Storage) *serviceHTTPShortURL {
 	return &serviceHTTPShortURL{
 		wrapp: handlershttp.WrapperHandler{
 			ServerConf: cfg,
+			Storage:    st,
 		},
 	}
 }
@@ -50,13 +51,6 @@ func (hook *serviceHTTPShortURL) Start() (err error) {
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
-	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
-	if err != nil {
-		hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
-		if err != nil {
-			log.Error(err)
-		}
-	}
 	//	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)

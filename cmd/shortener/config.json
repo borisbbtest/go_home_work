@@ -1,5 +1,5 @@
 {
-    "server_address": "localhost:8080",
+    "server_address": "localhost:8081",
     "base_url": "http://localhost",
     "file_storage_path": "/tmp/test",
     "database_dsn": "postgres://postgres:boris123@localhost:5432/praktikum?sslmode=disable",

@@ -5,6 +5,8 @@ import (
 
 	"github.com/borisbbtest/go_home_work/internal/proto/shortrpc"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/gogo/status"
+	"google.golang.org/grpc/codes"
 )
 
 func (hook *WrapperHandlerRPC) Create(ctx context.Context, in *shortrpc.CreateRequest) (*shortrpc.CreateResponse, error) {
@@ -16,7 +18,8 @@ func (hook *WrapperHandlerRPC) Create(ctx context.Context, in *shortrpc.CreateRe
 	hashcode, err := storage.ParserDataURL(in.GetOriginalUrl())
 
 	if err != nil {
-		log.Info(err)
+		log.Error(err)
+		return &res, status.Error(codes.FailedPrecondition, err.Error())
 	}
 
 	log.Info(hashcode.ShortPath)
@@ -26,6 +29,8 @@ func (hook *WrapperHandlerRPC) Create(ctx context.Context, in *shortrpc.CreateRe
 	if err != nil {
 		log.Error(err)
 		res.Status = err.Error()
+		return &res, status.Error(codes.FailedPrecondition, err.Error())
+
 	}
 	res.ResponseUrl = hashcode.ShortPath
 	if len(gl) > 0 {

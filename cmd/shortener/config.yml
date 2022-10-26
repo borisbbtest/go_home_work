@@ -1,8 +1,8 @@
 ---
-port: 8080
+port: 8081s
 ServerHost: localhost
-BASE_URL:   "http://localhost:8080"
-SERVER_ADDRESS:  "localhost:8080"
+BASE_URL:   "http://localhost:8081"
+SERVER_ADDRESS:  "localhost:8081"
 FILE_STORAGE_PATH: "/tmp/test"
 DATABASE_DSN: "postgres://postgres:boris123@localhost:5432/praktikum?sslmode=disable"
 TRUSTED_SUBNET: "127.0.0.0/24"

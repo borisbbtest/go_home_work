@@ -7,6 +7,8 @@ import (
 	"github.com/borisbbtest/go_home_work/internal/model"
 	"github.com/borisbbtest/go_home_work/internal/proto/shortrpc"
 	"github.com/borisbbtest/go_home_work/internal/storage"
+	"github.com/gogo/status"
+	"google.golang.org/grpc/codes"
 )
 
 func (hook *WrapperHandlerRPC) CreateBatch(ctx context.Context, in *shortrpc.CreateBatchRequest) (*shortrpc.CreateBatchResponse, error) {
@@ -30,6 +32,7 @@ func (hook *WrapperHandlerRPC) CreateBatch(ctx context.Context, in *shortrpc.Cre
 
 	if err != nil {
 		res.Status = err.Error()
+		return &res, status.Error(codes.FailedPrecondition, err.Error())
 	}
 
 	for _, v := range res2 {

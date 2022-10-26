@@ -14,27 +14,21 @@ type serviceRPCShortURL struct {
 	wrapp handlersgrpc.WrapperHandlerRPC
 }
 
-func NewRPC(cfg *config.ServiceShortURLConfig) *serviceRPCShortURL {
+func NewRPC(cfg *config.ServiceShortURLConfig, st storage.Storage) *serviceRPCShortURL {
 	return &serviceRPCShortURL{
 		wrapp: handlersgrpc.WrapperHandlerRPC{
 			ServerConf: cfg,
+			Storage:    st,
 		},
 	}
 }
 
 func (hook *serviceRPCShortURL) Start() (err error) {
 
-	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
-	if err != nil {
-		hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
-		if err != nil {
-			log.Error(err)
-		}
-	}
-
 	listen, err := net.Listen("tcp", hook.wrapp.ServerConf.ServerRPC)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	// создаём gRPC-сервер без зарегистрированной службы
 	s := grpc.NewServer()
@@ -45,8 +39,10 @@ func (hook *serviceRPCShortURL) Start() (err error) {
 	log.Info("Server gRPC is running ")
 
 	// получаем запрос gRPC
-	if err := s.Serve(listen); err != nil {
+	err = s.Serve(listen)
+	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	log.Info("End GRPC")
 	defer s.Stop()

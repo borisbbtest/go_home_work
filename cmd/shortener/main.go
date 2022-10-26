@@ -27,13 +27,9 @@ func main() {
 			FileStorePath: "",
 		}
 	}
-	log.Info("Start RPC")
-	go app.NewRPC(cfg).Start()
-
-	log.Info("Start HTTP")
-	err = app.NewHTTP(cfg).Start()
+	ap, err := app.Init(cfg)
 	if err != nil {
-		log.Fatal(err)
+		os.Exit(1)
 	}
-
+	ap.Start()
 }

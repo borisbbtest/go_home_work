@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	goflag "flag"
 	"io/ioutil"
+	"net"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,7 @@ type ServiceShortURLConfig struct {
 	EnableHTTPS   bool   `json:"enable_https" yaml:"ENABLE_HTTPS"`
 	TrustedSubnet string `json:"trusted_subnet" yaml:"TRUSTED_SUBNET"`
 	ServerRPC     string `json:"server_address_grpc" yaml:"SERVER_GRPC"`
+	Subnet        *net.IPNet
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
@@ -101,6 +103,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		}
 		if cfgenv.TrustedSubnet != "" {
 			config.TrustedSubnet = cfgenv.TrustedSubnet
+			_, config.Subnet, _ = net.ParseCIDR(cfgenv.TrustedSubnet)
 		}
 	}
 
@@ -121,6 +124,7 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	if TrustedSubnet != "" {
 		config.TrustedSubnet = TrustedSubnet
+		_, config.Subnet, _ = net.ParseCIDR(TrustedSubnet)
 	}
 	if EnableHTTPS {
 		config.EnableHTTPS = EnableHTTPS

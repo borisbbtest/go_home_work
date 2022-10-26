@@ -20,6 +20,7 @@ message RetrieveRequest {
 message RetrieveResponse {
   string redirect_url = 1;
   string status = 2;
+  int32 code = 3;
 }
 
 message CreateRequest {
@@ -30,6 +31,7 @@ message CreateRequest {
 message CreateResponse {
   string response_url = 1;
   string status = 2;
+  int32 code = 3;
 }
 
 message GetUserURLsRequest {
@@ -43,6 +45,7 @@ message GetUserURLsResponse {
   }
   repeated URL urls = 1;
   string status = 2;
+  int32 code = 3;
 }
 
 message CreateBatchRequest {
@@ -61,6 +64,7 @@ message CreateBatchResponse {
   }
   repeated URL urls = 1;
   string status = 2;
+  int32 code = 3;
 }
 
 message DeleteBatchRequest {
@@ -70,6 +74,7 @@ message DeleteBatchRequest {
 
 message DeleteBatchResponse {
   string status = 1;
+  int32 code = 2;
 }
 
 message GetStatsRequest {
@@ -80,4 +85,5 @@ message GetStatsResponse {
   int32 users = 1;
   int32 urls = 2;
   string status = 3;
+  int32 code = 4;
 }
