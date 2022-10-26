@@ -56,7 +56,7 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 
 	if err != nil || len(responseShortURL) <= 0 {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(204)
 		fmt.Fprint(w, "No Content")
 		return
 	}
@@ -105,14 +105,14 @@ func (hook *WrapperHandler) GetHandlerPing(w http.ResponseWriter, r *http.Reques
 	_, status := tools.PingDataBase(hook.ServerConf.DataBaseDSN)
 	if status != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(500)
 		fmt.Fprint(w, "error connection")
 		return
 		//log.Printf("Get handler")
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(200)
 	fmt.Fprint(w, "ok")
 
 	//log.Printf("Get handler")
