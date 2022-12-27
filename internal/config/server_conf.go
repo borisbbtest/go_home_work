@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	goflag "flag"
 	"io/ioutil"
+	"net"
 
 	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
@@ -21,6 +22,9 @@ type ServiceShortURLConfig struct {
 	FileStorePath string `json:"file_storage_path" yaml:"FILE_STORAGE_PATH"`
 	DataBaseDSN   string `json:"database_dsn" yaml:"DATABASE_DSN"`
 	EnableHTTPS   bool   `json:"enable_https" yaml:"ENABLE_HTTPS"`
+	TrustedSubnet string `json:"trusted_subnet" yaml:"TRUSTED_SUBNET"`
+	ServerRPC     string `json:"server_address_grpc" yaml:"SERVER_GRPC"`
+	Subnet        *net.IPNet
 }
 type ConfigFromENV struct {
 	ServerAddress string `env:"SERVER_ADDRESS"`
@@ -28,6 +32,8 @@ type ConfigFromENV struct {
 	FileStorePath string `env:"FILE_STORAGE_PATH"`
 	DataBaseDSN   string `env:"DATABASE_DSN"`
 	EnableHTTPS   string `env:"ENABLE_HTTPS"`
+	TrustedSubnet string `env:"TRUSTED_SUBNET"`
+	ServerRPC     string `env:"SERVER_GRPC"`
 }
 type ServerConfig interface {
 	GetConfig() (config *ServiceShortURLConfig, err error)
@@ -35,11 +41,13 @@ type ServerConfig interface {
 
 func GetConfig() (config *ServiceShortURLConfig, err error) {
 
-	var ServerAddress, BaseURL, FilePath, configFileName, DataBaseDSN string
+	var ServerAddress, BaseURL, FilePath, configFileName, TrustedSubnet, DataBaseDSN, ServerRPC string
 	EnableHTTPS := false
 	flag.StringVarP(&configFileName, "config", "c", "", "path to the configuration file")
-	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders")
+	flag.StringVarP(&ServerAddress, "server", "a", "", "Server Adders HTTP")
+	flag.StringVarP(&ServerRPC, "server_rpc", "g", "", "Server Adders GRPC")
 	flag.StringVarP(&BaseURL, "base_url", "b", "", "Base URL")
+	flag.StringVarP(&TrustedSubnet, "trusted_subnet", "t", "", "Base URL")
 	flag.StringVarP(&FilePath, "file_path", "f", "", "Config file path")
 	flag.StringVarP(&DataBaseDSN, "dsn", "d", "", "Set driver DSN ")
 	flag.BoolVarP(&EnableHTTPS, "tls", "s", false, "In HTTP server is Enable TLS")
@@ -61,6 +69,8 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		FileStorePath: "",
 		EnableHTTPS:   false,
 		DataBaseDSN:   "",
+		TrustedSubnet: "",
+		ServerRPC:     "localhost:3200",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -76,6 +86,9 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		if cfgenv.ServerAddress != "" {
 			config.ServerAddress = cfgenv.ServerAddress
 		}
+		if cfgenv.ServerRPC != "" {
+			config.ServerRPC = cfgenv.ServerRPC
+		}
 		if cfgenv.BaseURL != "" {
 			config.BaseURL = cfgenv.BaseURL
 		}
@@ -88,10 +101,17 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 		if cfgenv.EnableHTTPS != "" {
 			config.EnableHTTPS = true
 		}
+		if cfgenv.TrustedSubnet != "" {
+			config.TrustedSubnet = cfgenv.TrustedSubnet
+			_, config.Subnet, _ = net.ParseCIDR(cfgenv.TrustedSubnet)
+		}
 	}
 
 	if ServerAddress != "" {
 		config.ServerAddress = ServerAddress
+	}
+	if ServerRPC != "" {
+		config.ServerRPC = ServerRPC
 	}
 	if BaseURL != "" {
 		config.BaseURL = BaseURL
@@ -101,6 +121,10 @@ func GetConfig() (config *ServiceShortURLConfig, err error) {
 	}
 	if DataBaseDSN != "" {
 		config.DataBaseDSN = DataBaseDSN
+	}
+	if TrustedSubnet != "" {
+		config.TrustedSubnet = TrustedSubnet
+		_, config.Subnet, _ = net.ParseCIDR(TrustedSubnet)
 	}
 	if EnableHTTPS {
 		config.EnableHTTPS = EnableHTTPS

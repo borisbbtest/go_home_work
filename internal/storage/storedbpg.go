@@ -70,9 +70,33 @@ func (hook *StoreDBinPostgreSQL) Get(k string) (model.DataURL, error) {
 // Получаем все линки из БД у пользователя
 func (hook *StoreDBinPostgreSQL) GetAll(k string, dom string) ([]model.ResponseURL, error) {
 
-	return []model.ResponseURL{}, nil
-}
+	buff := []interface{}{k, dom}
+	res, err := hook.pgp.NewDBConn("pgsql.select.tb.all.url", []string{}, hook.connStr, buff)
+	if err != nil {
+		log.Error("pgsql.select.tb.all.url", err)
+		return []model.ResponseURL{}, err
+	}
 
+	return res.([]model.ResponseURL), nil
+}
+func (hook *StoreDBinPostgreSQL) GetStats() (res model.ResponseStats, err error) {
+
+	res.Users = 0
+	res.URLs = 0
+	users, err := hook.pgp.NewDBConn("pgsql.select.tb.users.count", []string{}, hook.connStr, []interface{}{})
+	if err != nil {
+		log.Error("pgsql.select.tb.users.count", err)
+		return res, err
+	}
+	urls, err := hook.pgp.NewDBConn("pgsql.select.tb.url.count", []string{}, hook.connStr, []interface{}{})
+	if err != nil {
+		log.Error("pgsql.select.tb.url.count", err)
+		return res, err
+	}
+	res.Users = users.(int32)
+	res.URLs = urls.(int32)
+	return
+}
 func (hook *StoreDBinPostgreSQL) Close() {
 	hook.pgp.Stop()
 }

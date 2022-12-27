@@ -1,9 +1,10 @@
-package handlers
+package handlershttp
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/borisbbtest/go_home_work/internal/tools"
@@ -59,6 +60,39 @@ func (hook *WrapperHandler) GetHandlerCooke(w http.ResponseWriter, r *http.Reque
 		fmt.Fprint(w, "No Content")
 		return
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(responseShortURL)
+
+	//log.Printf("Get handler")
+}
+
+func (hook *WrapperHandler) GetHandlerStats(w http.ResponseWriter, r *http.Request) {
+
+	if len(hook.UserID) == 0 {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusNoContent)
+		fmt.Fprint(w, "No Content")
+		return
+		//log.Printf("Get handler")
+	}
+
+	_, err := tools.TrustedSubnet(r.Header.Get(r.Header.Get("X-Real-IP")), *hook.ServerConf.Subnet)
+	if err != nil {
+		ips := r.Header.Get("X-Forwarded-For")
+		ipStrs := strings.Split(ips, ",")
+		ipStr := ipStrs[0]
+		_, err = tools.TrustedSubnet(ipStr, *hook.ServerConf.Subnet)
+	}
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusForbidden)
+		log.Error(err)
+		fmt.Fprint(w, "403 Forbidden")
+		return
+	}
+
+	responseShortURL, _ := hook.Storage.GetStats()
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(responseShortURL)
 

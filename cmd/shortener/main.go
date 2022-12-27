@@ -27,9 +27,9 @@ func main() {
 			FileStorePath: "",
 		}
 	}
-
-	err = app.New(cfg).Start()
+	ap, err := app.Init(cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
+	ap.Start()
 }

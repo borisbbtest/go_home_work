@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/borisbbtest/go_home_work/internal/config"
-	"github.com/borisbbtest/go_home_work/internal/handlers"
+	handlershttp "github.com/borisbbtest/go_home_work/internal/handlers/handlers_http"
 	"github.com/borisbbtest/go_home_work/internal/storage"
 	"github.com/borisbbtest/go_home_work/internal/tools"
 	"github.com/go-chi/chi/middleware"
@@ -21,15 +21,16 @@ import (
 
 var log = logrus.WithField("context", "service_short_url")
 
-type serviceShortURL struct {
-	wrapp handlers.WrapperHandler
+type serviceHTTPShortURL struct {
+	wrapp handlershttp.WrapperHandler
 }
 
 // Структура так так
-func New(cfg *config.ServiceShortURLConfig) *serviceShortURL {
-	return &serviceShortURL{
-		wrapp: handlers.WrapperHandler{
+func NewHTTP(cfg *config.ServiceShortURLConfig, st storage.Storage) *serviceHTTPShortURL {
+	return &serviceHTTPShortURL{
+		wrapp: handlershttp.WrapperHandler{
 			ServerConf: cfg,
+			Storage:    st,
 		},
 	}
 }
@@ -43,20 +44,13 @@ func printIntro() {
 	log.Info("Build date: ", buildDate)
 	log.Info("Build commit: ", buildCommit)
 }
-func (hook *serviceShortURL) Start() (err error) {
+func (hook *serviceHTTPShortURL) Start() (err error) {
 
 	printIntro()
 	// Launch the listening thread
 	log.Println("Initializing HTTP server")
 	r := chi.NewRouter()
 
-	hook.wrapp.Storage, err = storage.NewPostgreSQLStorage(hook.wrapp.ServerConf.DataBaseDSN)
-	if err != nil {
-		hook.wrapp.Storage, err = storage.NewFileStorage(hook.wrapp.ServerConf.FileStorePath)
-		if err != nil {
-			log.Error(err)
-		}
-	}
 	//	defer hook.wrapp.Storage.Close()
 
 	r.Use(middleware.RequestID)
@@ -87,6 +81,7 @@ func (hook *serviceShortURL) Start() (err error) {
 	r.Post("/api/shorten", hook.wrapp.PostJSONHandler)
 	r.Post("/api/shorten/batch", hook.wrapp.PostJSONHandlerBatch)
 	r.Delete("/api/user/urls", hook.wrapp.DeleteURLHandlers)
+	r.Get("/api/internal/stats", hook.wrapp.GetHandlerStats)
 
 	server := &http.Server{
 		Addr:         hook.wrapp.ServerConf.ServerAddress,
